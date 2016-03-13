@@ -1,0 +1,17 @@
+name(){
+
+}
+
+name2(arg1, arg2){
+	"hello"
+	"hello"
+	"hello"
+}
+
+name3(arg2){
+	"its dimitriv"
+}
+
+name("yes", "no", name() ,"ples", idntfckwyou() )
+name2("yes", "no")
+name3()

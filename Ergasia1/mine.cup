@@ -1,0 +1,67 @@
+import java_cup.runtime.*;
+
+//===================================================================
+//===================================================================
+parser code  {:
+	public void report_error(String message, Object info) {
+		StringBuilder m = new StringBuilder("Error ");
+
+		if (info instanceof java_cup.runtime.Symbol)
+			m.append( "("+info.toString()+")" );
+
+		m.append(" : "+message);
+
+		System.out.println(m);
+	}
+
+	public void report_fatal_error(String message, Object info) {
+		report_error(message, info);
+		throw new RuntimeException("Fatal Syntax Error");
+	}
+:};
+//===================================================================
+//===================================================================
+
+// TERMINALS
+terminal			IN;
+terminal			IF, ELSE; // if_then_statement, if_then_else_statement
+terminal			COMMA, LBRACE, RBRACE, LPAREN, RPAREN;
+terminal			EQ, PLUS;
+
+terminal 			java.lang.String STRING_LITERAL;
+terminal 			java.lang.String IDENTIFIER; // name
+
+// NON TERMINALS
+non terminal function_declaration, function_header, function_body, function_call;
+non terminal parameters_list, parameters, call_parameters, call_parameters_list;
+non terminal goal;
+non terminal block_statements, block_state;
+//===================================================================
+//===================================================================
+
+start with goal;
+
+goal ::= goal function_declaration
+		| goal function_call
+		| ;
+
+function_declaration ::= function_header LBRACE function_body RBRACE;
+
+function_header ::= IDENTIFIER LPAREN parameters_list RPAREN	// multiple arguments case
+				| 	IDENTIFIER LPAREN RPAREN;					// no body case
+
+function_body ::= function_body STRING_LITERAL
+				| ;
+
+parameters_list ::= parameters_list COMMA IDENTIFIER
+					| IDENTIFIER;
+
+function_call ::= IDENTIFIER LPAREN RPAREN
+				| IDENTIFIER LPAREN call_parameters RPAREN;
+
+call_parameters ::= call_parameters COMMA call_parameters_list
+				| STRING_LITERAL
+				| function_call;
+
+call_parameters_list ::= STRING_LITERAL
+					| function_call;
