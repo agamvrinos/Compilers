@@ -1,9 +1,27 @@
-name(){
+//=====================================
+name(){			// empty body
 
 }
-
+//=====================================
+name(){			// 1 string body
+	"Just a String"
+}
+//=====================================
+name(){			// 1 identifier body
+	variable
+}
+//=====================================
+name(){
+	v1 + v2 + v3		// adding identifiers
+	"hi" + "hi" 		// adding strings
+	"hi" + b1 + "yo"	// adding mix
+	theycmerollin		// just an identifier
+	"foo"				// just a solo string
+}
+//=====================================
 name2(arg1, arg2){
 	"hello"
+	agg + kouradia
 	"hello"
 	"hello"
 }

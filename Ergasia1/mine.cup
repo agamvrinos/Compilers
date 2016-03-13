@@ -36,6 +36,7 @@ non terminal function_declaration, function_header, function_body, function_call
 non terminal parameters_list, parameters, call_parameters, call_parameters_list;
 non terminal goal;
 non terminal block_statements, block_state;
+non terminal expression, afterplus;
 //===================================================================
 //===================================================================
 
@@ -50,7 +51,7 @@ function_declaration ::= function_header LBRACE function_body RBRACE;
 function_header ::= IDENTIFIER LPAREN parameters_list RPAREN	// multiple arguments case
 				| 	IDENTIFIER LPAREN RPAREN;					// no body case
 
-function_body ::= function_body STRING_LITERAL
+function_body ::=  function_body expression
 				| ;
 
 parameters_list ::= parameters_list COMMA IDENTIFIER
@@ -65,3 +66,10 @@ call_parameters ::= call_parameters COMMA call_parameters_list
 
 call_parameters_list ::= STRING_LITERAL
 					| function_call;
+
+expression ::= expression PLUS afterplus
+			| IDENTIFIER
+			| STRING_LITERAL;
+
+afterplus ::= IDENTIFIER
+			| STRING_LITERAL;
