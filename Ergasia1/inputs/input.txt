@@ -17,19 +17,55 @@ name(){
 	"hi" + b1 + "yo"	// adding mix
 	theycmerollin		// just an identifier
 	"foo"				// just a solo string
+
+	name(x,x,x,x)
+
+	"foo"				// just a solo string
+	theycmerollin		// just an identifier
+
+	if ()
+		if ()
+			if ()
+
+			else
+		else
+	else
+
+	if ()
+
+	else
+
 }
 //=====================================
-name2(arg1, arg2){
-	"hello"
-	agg + kouradia
-	"hello"
-	"hello"
-}
+// name2(arg1, arg2){
+// 	"hello"
+// 	agg + kouradia
+// 	"hello"
+// 	"hello"
+//
+// 	if ()
+// 		if ()
+// 			variable
+// 			if ()
+//
+// 			else
+// 		else
+// 	else
+//
+// 	if ()
+// 		if ()
+// 			if ()
+//
+// 			else
+// 			expression
+// 		else
+// 	else
+// }
 
-name3(arg2){
-	"its dimitriv"
-}
-
-name("yes", "no", name() ,"ples", idntfckwyou() )
-name2("yes", "no")
-name3()
+// name3(arg2){
+// 	"its dimitriv"
+// }
+//
+// name("yes", "no", name() ,"ples", idntfckwyou() )
+// name2("yes", "no")
+// name3()
