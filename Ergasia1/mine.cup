@@ -66,8 +66,7 @@ parameters_list ::= parameters_list COMMA IDENTIFIER
 
 function_body ::= LBRACE expressions RBRACE;
 
-expressions ::= expressions function_call_inner
-			| expressions calculations
+expressions ::=  expressions calculations
 			| expressions if_expression
 			| ;
 
@@ -82,9 +81,11 @@ calculations ::= concatenation;
 
 concatenation ::= concatenation PLUS afterplus
 				| STRING_LITERAL
+				| function_call_inner
 				| IDENTIFIER;
 
 afterplus ::= STRING_LITERAL
+			| function_call_inner
 			| IDENTIFIER;
 
 if_expression ::= IF LPAREN RPAREN if_block_expressions ELSE;
