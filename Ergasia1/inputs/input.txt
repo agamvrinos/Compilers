@@ -1,16 +1,16 @@
-name() {
-	( x + y + ("foo" + y) + ((foo())) ) + x
-}
-
-name2() {
-	if ((foo()))
-		( x + y + ("foo" + y) + ((foo())) ) + x
-	else
-		if ()
-			( x + y + ("foo" + y) + ((foo())) ) + x
-		else
-			"foo" + x + foo("FOO") + x + (x)
-}
+// name(((x)) + y, y) {
+// 	( x + y + ("foo" + y) + ((foo("foo"))) ) + x
+// }
+//
+// name2(x, y) {
+// 	if ((foo()))
+// 		( x + y + ("foo" + y) + ((foo())) ) + x
+// 	else
+// 		if ()
+// 			( x + y + ("foo" + y) + ((foo())) ) + x
+// 		else
+// 			"foo" + x + foo("FOO") + x + (x)
+// }
 // x + x
 // x + x + (x)
 // "foo" + x
@@ -36,22 +36,22 @@ name2() {
 //==================================
 //============ INPUT 1 =============
 //==================================
-// name()  {
-//     "John"
-// }
-//
-// name()
-//
-// surname() {
-//     "Doe"
-// }
-//
-// fullname(first_name, sep, last_name) {
-//     first_name + sep + last_name
-// }
-//
-// surname()
-// fullname(name(), " ", surname())
+name()  {
+    "John"
+}
+
+name()
+
+surname() {
+    "Doe"
+}
+
+fullname(first_name, sep, last_name) {
+    first_name + sep + last_name
+}
+
+surname()
+fullname(name(), " ", surname())
 // //==================================
 // //============ INPUT 2 =============
 // //==================================

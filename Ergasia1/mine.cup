@@ -37,6 +37,8 @@ non terminal inner_function_call, outer_function_call, function_call_inner, func
 non terminal parameters_list, inner_parameters_list, outer_parameters_list;	// parameter types
 non terminal expr, calculations, simple_literal, if_block_expressions, cond_type, cond_val,partone;
 non terminal expressions, if_expression, afterplus, condition, concatenation, leftplus, rightplus;
+
+non terminal decl_parameters_list;
 //===================================================================
 //===================================================================
 // non terminal expression, signed_term, sum_op, term, expr;
@@ -139,44 +141,54 @@ non terminal expressions, if_expression, afterplus, condition, concatenation, le
 // cond_val ::=  IDENTIFIER
 // 			| STRING_LITERAL
 // 			| function_call_inner;
+
+non terminal expressions2, parameters_part2;
+
 precedence left PLUS;
 
 start with expr;
 
 expr ::= expr function_declaration
-		// | expr function_call_outer
+		// | expr outer_function_call
 		| ;
 
-function_declaration ::= IDENTIFIER LPAREN inner_parameters_list RPAREN LBRACE function_body RBRACE;
+function_declaration ::= IDENTIFIER LPAREN decl_parameters_list RPAREN LBRACE function_body RBRACE;
 
 
 //=====================================================
-inner_parameters_list ::= expressions parameters_part
-						| ;
+inner_parameters_list ::= function_body parameters_part	// function body giati borei na parei kai if stmt
+						| ;								// ektos apo expressions
 
 parameters_part ::= COMMA inner_parameters_list
 				| ;
-
-parameters_list ::= literal;
 //=====================================================
+decl_parameters_list ::= expressions2 parameters_part2
+					| ;
 
-
+parameters_part2 ::= COMMA decl_parameters_list
+				| ;
+//=====================================================
 function_body ::= expressions
 				| if_expression;
 
+// expressions for the inner parameters
 expressions ::= expressions PLUS expressions
 			| LPAREN expressions RPAREN
 			| literal;
 
-if_expression ::= IF LPAREN inner_parameters_list RPAREN function_body ELSE function_body;
+// expressions2 for the declaration parameters
+expressions2 ::= expressions PLUS expressions
+			| LPAREN expressions RPAREN
+			| literal2;
 
-// literal gia outer parameters
+if_expression ::= IF condition LPAREN inner_parameters_list RPAREN function_body ELSE function_body;
+
+// literal for the inner parameters
 literal ::= IDENTIFIER
 		| STRING_LITERAL
 		| inner_function_call;
 
-// literal gia inner parameters
-// literal2 ::= IDENTIFIER
-// 		| inner_function_call;
+// literal2 for the function declaration
+literal2 ::= IDENTIFIER;
 
 inner_function_call ::= IDENTIFIER LPAREN inner_parameters_list RPAREN;
