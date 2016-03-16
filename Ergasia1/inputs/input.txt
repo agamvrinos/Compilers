@@ -1,71 +1,102 @@
-//=====================================
-name(){			// empty body
-
+name() {
+	( x + y + ("foo" + y) + ((foo())) ) + x
 }
-//=====================================
-name(){			// 1 string body
-	"Just a String"
-}
-//=====================================
-name(){			// 1 identifier body
-	variable
-}
-//=====================================
-name(){
-	v1 + v2 + v3		// adding identifiers
-	"hi" + "hi" 		// adding strings
-	"hi" + b1 + "yo"	// adding mix
-	theycmerollin		// just an identifier
-	"foo"				// just a solo string
 
-	name(x,x,x,x) + "fo" + var
-
-	"foo"				// just a solo string
-	theycmerollin		// just an identifier
-
-	if ()
+name2() {
+	if ((foo()))
+		( x + y + ("foo" + y) + ((foo())) ) + x
+	else
 		if ()
-			if ()
-
-			else
+			( x + y + ("foo" + y) + ((foo())) ) + x
 		else
-	else
-
-	if ()
-
-	else
-
+			"foo" + x + foo("FOO") + x + (x)
 }
-//=====================================
-// name2(arg1, arg2){
-// 	"hello"
-// 	agg + kouradia
-// 	"hello"
-// 	"hello"
+// x + x
+// x + x + (x)
+// "foo" + x
 //
-// 	if ()
-// 		if ()
-// 			variable
-// 			if ()
+// "foo"
+// "foo" + x + foo() + x + (x)
+// xs
 //
-// 			else
-// 		else
-// 	else
+// (x) + (x)
+// ((x + x) + x)
 //
-// 	if ()
-// 		if ()
-// 			if ()
+// x + ("2")
 //
-// 			else
-// 			expression
-// 		else
-// 	else
+// (x + y)
+//
+// ((x) + (y))
+//
+// (("goo") + (((y))))
+//
+// (x) + x + (x)
+//
+// (x) + (x + x)
+//==================================
+//============ INPUT 1 =============
+//==================================
+// name()  {
+//     "John"
 // }
-
-// name3(arg2){
-// 	"its dimitriv"
+//
+// name()
+//
+// surname() {
+//     "Doe"
 // }
 //
-// name("yes", "no", name() ,"ples", idntfckwyou() )
-// name2("yes", "no")
-// name3()
+// fullname(first_name, sep, last_name) {
+//     first_name + sep + last_name
+// }
+//
+// surname()
+// fullname(name(), " ", surname())
+// //==================================
+// //============ INPUT 2 =============
+// //==================================
+// name() {
+//     "John"
+// }
+//
+// repeat(x) {
+//     x + x
+// }
+//
+// cond_repeat(c, x) {
+//     if (c = "yes")
+//         repeat(x)
+//     else
+//         x
+// }
+//
+// cond_repeat("yes", name())
+// cond_repeat("no", "Jane")
+// //==================================
+// //============ INPUT 3 =============
+// //==================================
+// may_be_gerund(x) {
+//     if ("ing" in x)
+//         "yes"
+//     else
+//         "no"
+// }
+//
+// repeat(x) {
+//     x + (x + (x) + (x) + (x + x))
+// }
+//
+// cond_repeat_gerund(c, x) {
+//     if (c = "yes")
+//         if (may_be_gerund(x) = "yes")
+//             repeat(x)
+//         else
+//             x
+//     else
+//         x
+//
+// }
+//
+// cond_repeat_gerund("yes", "running")
+// cond_repeat_gerund("yes", "run")
+// cond_repeat_gerund("no", "running")

@@ -32,109 +32,151 @@ terminal 			java.lang.String STRING_LITERAL;
 terminal 			java.lang.String IDENTIFIER; // name
 
 // NON TERMINALS
-non terminal function_declaration, function_header, function_body, function_call_outer,function_call_inside;
-non terminal parameters_list, parameters, call_parameters, call_parameters_list;
-non terminal goal, expr,calculations,partwo,if_block_expressions;
-non terminal block_statements, block_state, inner_parameters_list;
-non terminal expressions, if_expression, other_expression, afterplus, condition, concatenation,function_call_inner;
+non terminal function_declaration, function_header, function_body, literal,literal2,parameters_part;			// fucntion declaration
+non terminal inner_function_call, outer_function_call, function_call_inner, function_call_outer,partwo;						// function calls
+non terminal parameters_list, inner_parameters_list, outer_parameters_list;	// parameter types
+non terminal expr, calculations, simple_literal, if_block_expressions, cond_type, cond_val,partone;
+non terminal expressions, if_expression, afterplus, condition, concatenation, leftplus, rightplus;
 //===================================================================
 //===================================================================
+// non terminal expression, signed_term, sum_op, term, expr;
+// non terminal  value, term_op, factor, factor_op, argument;
+
+// precedence left IDENTIFIER;
+// precedence left PLUS;
+//
+// // parenthesis
+// expr ::= expr expressions
+// 		| ;
+//
+// expressions ::= concatenation
+// 			| simple_literal;
+//
+// concatenation ::= expressions PLUS expressions
+// 				| LPAREN expressions RPAREN
+// 				;
+//
+// simple_literal ::= IDENTIFIER
+// 				 | STRING_LITERAL
+// 				 | IDENTIFIER LPAREN RPAREN;
+
+// leftplus
+// expr ::= expression
+// 		| expr expression;
+//
+// expression ::= argument sum_op;
+//
+// sum_op ::= PLUS argument sum_op
+// 			| ;
+//
+// argument ::= value
+// 			| LPAREN expression RPAREN;
+//
+// value ::= STRING_LITERAL | IDENTIFIER
+// 		| IDENTIFIER LPAREN RPAREN;
+//===================================================================
+//===================================================================
+
+// start with expr;
+//
+// expr ::= expr function_declaration
+// 		| expr function_call_outer
+// 		| ;
+//
+// function_call_outer ::= IDENTIFIER LPAREN RPAREN
+// 					| IDENTIFIER LPAREN outer_parameters_list RPAREN;
+//
+// outer_parameters_list ::= outer_parameters_list COMMA partwo
+// 					| STRING_LITERAL
+// 					| function_call_outer;
+//
+// partwo ::= STRING_LITERAL
+// 		| function_call_outer;
+//
+// function_declaration ::= function_header function_body;
+//
+// function_header ::= IDENTIFIER LPAREN RPAREN
+// 				| IDENTIFIER LPAREN parameters_list RPAREN;
+//
+// parameters_list ::= parameters_list COMMA IDENTIFIER
+// 				| IDENTIFIER;
+//
+// function_body ::= LBRACE expressions RBRACE;
+//
+// expressions ::= expressions calculations
+// 			  | expressions if_expression
+// 			  | ;
+//
+// function_call_inner ::= IDENTIFIER LPAREN RPAREN
+// 					| IDENTIFIER LPAREN inner_parameters_list RPAREN;
+//
+// inner_parameters_list ::= inner_parameters_list COMMA IDENTIFIER
+// 						| IDENTIFIER
+// 						| function_call_inner;
+//
+// calculations ::= concatenation;
+//
+// concatenation ::= concatenation PLUS afterplus
+// 				| STRING_LITERAL
+// 				| function_call_inner
+// 				| IDENTIFIER;
+//
+// afterplus ::= STRING_LITERAL
+// 			| function_call_inner
+// 			| LPAREN concatenation RPAREN
+// 			| IDENTIFIER;
+//
+// if_expression ::= IF LPAREN condition RPAREN if_block_expressions ELSE if_block_expressions;
+//
+// if_block_expressions ::=  if_expression
+// 						| concatenation;
+//
+// condition ::= cond_val cond_type cond_val;
+//
+// cond_type ::= EQ
+// 			| IN;
+//
+// cond_val ::=  IDENTIFIER
+// 			| STRING_LITERAL
+// 			| function_call_inner;
+precedence left PLUS;
 
 start with expr;
 
 expr ::= expr function_declaration
-		| expr function_call_outer
+		// | expr function_call_outer
 		| ;
 
-function_call_outer ::= IDENTIFIER LPAREN RPAREN
-					| IDENTIFIER LPAREN call_parameters RPAREN;
+function_declaration ::= IDENTIFIER LPAREN inner_parameters_list RPAREN LBRACE function_body RBRACE;
 
-call_parameters ::= call_parameters COMMA partwo
-					| STRING_LITERAL
-					| function_call_outer;
 
-partwo ::= STRING_LITERAL
-		| function_call_outer;
+//=====================================================
+inner_parameters_list ::= expressions parameters_part
+						| ;
 
-function_declaration ::= function_header function_body;
+parameters_part ::= COMMA inner_parameters_list
+				| ;
 
-function_header ::= IDENTIFIER LPAREN RPAREN
-				| IDENTIFIER LPAREN parameters_list RPAREN;
+parameters_list ::= literal;
+//=====================================================
 
-parameters_list ::= parameters_list COMMA IDENTIFIER
-				| IDENTIFIER;
 
-function_body ::= LBRACE expressions RBRACE;
+function_body ::= expressions
+				| if_expression;
 
-expressions ::=  expressions calculations
-			| expressions if_expression
-			| ;
+expressions ::= expressions PLUS expressions
+			| LPAREN expressions RPAREN
+			| literal;
 
-function_call_inner ::= IDENTIFIER LPAREN RPAREN
-					| IDENTIFIER LPAREN inner_parameters_list RPAREN;
+if_expression ::= IF LPAREN inner_parameters_list RPAREN function_body ELSE function_body;
 
-inner_parameters_list ::= inner_parameters_list COMMA IDENTIFIER
-						| IDENTIFIER
-						| function_call_inner;
+// literal gia outer parameters
+literal ::= IDENTIFIER
+		| STRING_LITERAL
+		| inner_function_call;
 
-calculations ::= concatenation;
+// literal gia inner parameters
+// literal2 ::= IDENTIFIER
+// 		| inner_function_call;
 
-concatenation ::= concatenation PLUS afterplus
-				| STRING_LITERAL
-				| function_call_inner
-				| IDENTIFIER;
-
-afterplus ::= STRING_LITERAL
-			| function_call_inner
-			| IDENTIFIER;
-
-if_expression ::= IF LPAREN RPAREN if_block_expressions ELSE;
-
-if_block_expressions ::= if_expression
-					| ;
-// start with goal;
-//
-// goal ::= goal function_declaration
-// 		| goal function_call
-// 		| ;
-//
-// function_declaration ::= function_header LBRACE function_body RBRACE;
-//
-// function_header ::= IDENTIFIER LPAREN parameters_list RPAREN	// multiple arguments case
-// 				| 	IDENTIFIER LPAREN RPAREN;					// no body case
-//
-// function_body ::= expression;
-// //====================================================
-// parameters_list ::= parameters_list COMMA IDENTIFIER
-// 					| IDENTIFIER;
-// //====================================================
-//
-// function_call ::= IDENTIFIER LPAREN RPAREN
-// 				| IDENTIFIER LPAREN call_parameters RPAREN;
-// //====================================================
-// call_parameters ::= call_parameters COMMA call_parameters_list
-// 				| STRING_LITERAL
-// 				| function_call;
-// //====================================================
-// call_parameters_list ::= STRING_LITERAL
-// 						| function_call
-// 						| IDENTIFIER;
-//
-// expression ::= expression if_expression
-// 			| expression other_expression
-// 			| ;
-//
-// other_expression ::= concatenation
-// 				| function_call_inside;
-//
-// concatenation ::= other_expression PLUS afterplus
-// 				| IDENTIFIER
-// 				| STRING_LITERAL;
-//
-// afterplus ::= IDENTIFIER
-// 			| STRING_LITERAL;
-
-// if_expression ::= IF condition expression ELSE;
-//
-// condition ::= LPAREN RPAREN;
-			// | LPAREN conditions RPAREN;
+inner_function_call ::= IDENTIFIER LPAREN inner_parameters_list RPAREN;
