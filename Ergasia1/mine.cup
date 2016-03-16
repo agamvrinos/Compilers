@@ -31,34 +31,34 @@ terminal 			RPAREN_LBRACE;
 
 terminal 			java.lang.String STRING_LITERAL;
 terminal 			java.lang.String IDENTIFIER; // name
+non terminal 		java.lang.String expressions3; // name
 
 // NON TERMINALS
-non terminal function_declaration, function_header, function_body, literal,literal2,parameters_part;			// fucntion declaration
-non terminal inner_function_call, outer_function_call, function_call_inner, function_call_outer,partwo;						// function calls
-non terminal parameters_list, inner_parameters_list, outer_parameters_list;	// parameter types
-non terminal expr, calculations, simple_literal, if_block_expressions, cond_type, cond_val,partone;
-non terminal expressions, if_expression, afterplus, condition, concatenation, leftplus, rightplus;
+non terminal String function_declaration, function_header, function_body, literal,literal2,parameters_part;			// fucntion declaration
+non terminal String inner_function_call, outer_function_call, function_call_inner, function_call_outer,partwo;						// function calls
+non terminal String parameters_list, inner_parameters_list, outer_parameters_list;	// parameter types
+non terminal String expr, calculations, simple_literal, if_block_expressions, cond_type, cond_val,partone;
+non terminal String expressions, if_expression, afterplus, condition, concatenation, leftplus, rightplus;
 
-non terminal decl_parameters_list;
+non terminal String decl_parameters_list;
 //===================================================================
 //===================================================================
 
-non terminal expressions2, parameters_part2, parameters_part3, call_parameters_list, expressions3;
+non terminal String expressions2, parameters_part2, parameters_part3, call_parameters_list;
 
 precedence left PLUS;
 
 start with expr;
 
-expr ::= expr function_declaration
-		| expr outer_function_call:out		
+expr ::= expr function_declaration:func			{: System.out.println("(define " + func + ")"); :}
+		| expr outer_function_call:out			{: System.out.println("(" + out + ")"); :}
 		| ;
 
-outer_function_call ::= IDENTIFIER LPAREN outer_parameters_list RPAREN
+outer_function_call ::= IDENTIFIER:id LPAREN call_parameters_list:param RPAREN 	{: RESULT =  id + param ; :};
 
-outer_parameters_list ::= call_parameters_list
-						;
 
-function_declaration ::= IDENTIFIER LPAREN decl_parameters_list RPAREN_LBRACE function_body RBRACE;
+function_declaration ::= IDENTIFIER:id LPAREN decl_parameters_list:dec RPAREN_LBRACE function_body:bd RBRACE
+						{: RESULT = "(" + id + dec + ") " + bd; :};
 
 
 //=====================================================
@@ -68,36 +68,36 @@ inner_parameters_list ::= function_body parameters_part	// function body giati b
 parameters_part ::= COMMA inner_parameters_list
 				| ;
 //=====================================================
-decl_parameters_list ::= expressions2 parameters_part2
-					| ;
+decl_parameters_list ::= expressions2:exp parameters_part2:c	{: RESULT = exp + c; :}
+					| 											{: RESULT = ""; :};
 
-parameters_part2 ::= COMMA decl_parameters_list
-				| ;
+parameters_part2 ::= COMMA decl_parameters_list:d				{: RESULT = d; :}
+				| 												{: RESULT = ""; :};
 //=====================================================
-call_parameters_list ::= expressions3 parameters_part3
-					| ;
+call_parameters_list ::= expressions3:exp parameters_part3:c	{: RESULT = exp + c; :}
+					| 											{: RESULT = ""; :};
 
-parameters_part3 ::= COMMA call_parameters_list
-				| ;
+parameters_part3 ::= COMMA call_parameters_list:d				{: RESULT = d; :}
+				| 												{: RESULT = ""; :};
 //=====================================================
-function_body ::= expressions
+function_body ::= expressions:e							{: RESULT = e; :}
 				| if_expression;
 
 // expressions for the inner parameters
-expressions ::= expressions PLUS expressions
+expressions ::= expressions:e1 PLUS expressions:e2		{: RESULT = "(" + "string-append" + e1 + e2 + ")" ; :}
 			| LPAREN expressions RPAREN
-			| literal;
+			| literal:lit								{: RESULT = lit; :};
 
 // expressions2 for the declaration parameters (IDENTIFIER or parenthesized expressions)
 // CONCAT is not allowed when declaring ex. my_func(x+x){ body }	// error
 expressions2 ::=  LPAREN expressions2 RPAREN
-				| literal2;
+				| literal2:lit					{: RESULT = lit; :};
 
 // expressions3 for the call parameters
 expressions3 ::= expressions3 PLUS expressions3
 			| LPAREN expressions3 RPAREN
-			| STRING_LITERAL
-			| outer_function_call;
+			| STRING_LITERAL:s					{: RESULT = " \"" + s + "\"" ; :}
+			| outer_function_call:out			{: RESULT = " (" + out + ")"; :};
 
 if_expression ::= IF LPAREN condition RPAREN function_body ELSE function_body;
 
@@ -107,11 +107,11 @@ condition ::= expressions cond_type expressions		// simple in/eq condition
 cond_type ::= IN | EQ ;
 
 // literal for the inner parameters
-literal ::= IDENTIFIER
-		| STRING_LITERAL
+literal ::= IDENTIFIER:id			{: RESULT = " " + id; :}
+		| STRING_LITERAL:s			{: RESULT = " \"" + s + "\"" ; :}
 		| inner_function_call;
 
 // literal2 for the function declaration
-literal2 ::= IDENTIFIER;
+literal2 ::= IDENTIFIER:id			{: RESULT = " " + id; :};
 
 inner_function_call ::= IDENTIFIER LPAREN inner_parameters_list RPAREN;
