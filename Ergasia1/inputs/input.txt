@@ -37,9 +37,12 @@
 //============ INPUT 1 =============
 //==================================
 name()  {
-    "John"
+    "John" + surname()
 }
-//
+
+name()  {
+    (x) + foo + "foo"
+}
 // name()
 //
 // surname() {
@@ -49,35 +52,35 @@ name()  {
 // 		x
 // }
 //
-fullname(first_name, sep, last_name) {
-    first_name + sep + last_name
-}
+// fullname(first_name, sep, last_name) {
+//     first_name + sep + last_name
+// }
 //
 // surname()
 // fullname(name(), " ", surname())
-// //==================================
-// //============ INPUT 2 =============
-// //==================================
+//==================================
+//============ INPUT 2 =============
+//==================================
 // name() {
 //     "John"
 // }
 //
-repeat(x) {
-    x + x
-}
-
+// repeat(x) {
+//     x + x
+// }
+//
 // cond_repeat(c, x) {
-    // if (c = "yes")
-    //     repeat(x)
-    // else
+//     if (c = "yes")
+//         repeat(x)
+//     else
 //         x
 // }
-
+//
 // cond_repeat("yes", name())
 // cond_repeat("no", "Jane")
-// //==================================
-// //============ INPUT 3 =============
-// //==================================
+//==================================
+//============ INPUT 3 =============
+//==================================
 // may_be_gerund(x) {
 //     if ("ing" in x)
 //         "yes"
@@ -86,7 +89,8 @@ repeat(x) {
 // }
 //
 // repeat(x) {
-//     x + (x + (x) + (x) + (x + x))
+// 	x + x
+//     // x + (x + (x) + (x) + (x + x))
 // }
 //
 // cond_repeat_gerund(c, x) {
@@ -97,9 +101,9 @@ repeat(x) {
 //             x
 //     else
 //         x
-
+//
 // }
-
+//
 // cond_repeat_gerund("yes", "running")
 // cond_repeat_gerund("yes", "run")
 // cond_repeat_gerund("no", "running")
