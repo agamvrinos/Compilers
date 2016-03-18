@@ -1,16 +1,16 @@
-// name(((x)) + y, y) {
-// 	( x + y + ("foo" + y) + ((foo("foo"))) ) + x
-// }
-//
-// name2(x, y) {
-// 	if ((foo(x) in x))
-// 		( x + y + ("foo" + y) + ((foo())) ) + x
-// 	else
-// 		if (y = "foo")
-// 			( x + y + ("foo" + y) + ((foo())) ) + x
-// 		else
-// 			"foo" + x + foo("FOO") + x + (x)
-// }
+name(x , y) {
+	( x + y + ("foo" + y) + ((foo("foo"))) ) + x
+}
+
+name2(x, y) {
+	if (if(x = y) x else d in ("fooo"))
+		( x_2 + y + ("foo" + y) + ((foo())) ) + x
+	else
+		if (y = "foo")
+			( x + y + ("foo" + y) + ((foo())) ) + x
+		else
+			"foo" + x + foo("FOO") + x + (x)
+}
 // x + x
 // x + x + (x)
 // "foo" + x
@@ -36,13 +36,13 @@
 //==================================
 //============ INPUT 1 =============
 //==================================
-name()  {
-    "John" + surname()
-}
-
-name()  {
-    (x) + foo + "foo"
-}
+// name()  {
+//     "John" + surname()
+// }
+//
+// name()  {
+//     (x) + foo + "foo"
+// }
 // name()
 //
 // surname() {

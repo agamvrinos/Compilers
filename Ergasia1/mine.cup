@@ -23,21 +23,20 @@ parser code  {:
 //===================================================================
 
 // TERMINALS
-terminal			IN;
-terminal			IF, ELSE; // if_then_statement, if_then_else_statement
-terminal			COMMA, LBRACE, RBRACE, LPAREN, RPAREN;
-terminal			EQ, PLUS;
-terminal 			RPAREN_LBRACE;
+terminal	IN;
+terminal	IF, ELSE; // if_then_statement, if_then_else_statement
+terminal	COMMA, LBRACE, RBRACE, LPAREN, RPAREN;
+terminal	EQ, PLUS;
+terminal 	RPAREN_LBRACE;
 
-terminal 			java.lang.String STRING_LITERAL;
-terminal 			java.lang.String IDENTIFIER; // name
-non terminal 		java.lang.String expressions3; // name
+terminal 	String STRING_LITERAL;
+terminal 	String IDENTIFIER;
 
 // NON TERMINALS
 non terminal String expr;	// initial state
 non terminal String function_declaration, function_body;
 non terminal String inner_function_call, outer_function_call;							// function calls
-non terminal String inner_parameters_lists, decl_parameters_list, call_parameters_list;	// parameter types
+non terminal String inner_parameters_list, decl_parameters_list, call_parameters_list;	// parameter types
 non terminal String parameters_part, parameters_part2, parameters_part3;
 non terminal String expressions, expressions2, expressions3;
 non terminal String if_expression, condition, cond_type;
@@ -90,20 +89,20 @@ expressions ::= expressions:e1 PLUS expressions:e2		{: RESULT = "(" + "string-ap
 
 // expressions2 for the declaration parameters (IDENTIFIER or parenthesized expressions)
 // CONCAT is not allowed when declaring ex. my_func(x+x){ body }	// error
-expressions2 ::=  LPAREN expressions2:e RPAREN	{: RESULT = e; :}
-				| literal2:lit					{: RESULT = lit; :};
+expressions2 ::=  LPAREN expressions2:e RPAREN			{: RESULT = e; :}
+				| literal2:lit							{: RESULT = lit; :};
 
 // expressions3 for the call parameters
-expressions3 ::= expressions3 PLUS expressions3
-			| LPAREN expressions3:e RPAREN		{: RESULT = e; :}
-			| STRING_LITERAL:s					{: RESULT = " \"" + s + "\"" ; :}
-			| outer_function_call:out			{: RESULT = " (" + out + ")"; :};
+expressions3 ::= expressions3:e1 PLUS expressions3:e2	{: RESULT = "(" + "string-append" + " " + e1 + " " + e2 + ")" ;:}
+			| LPAREN expressions3:e RPAREN				{: RESULT = e; :}
+			| STRING_LITERAL:s							{: RESULT = " \"" + s + "\"" ; :}
+			| outer_function_call:out					{: RESULT = " (" + out + ")"; :};
 
 if_expression ::= IF LPAREN condition:cond RPAREN function_body:b1 ELSE function_body:b2	{: RESULT = "(if " + "(" + cond + ")" + b1 + b2 + ")"; :};
 
 // simple in/eq condition & multiple parentheses outer ex. if ((x in "foo"))
-condition ::= expressions:e1 cond_type:t expressions:e2		{: RESULT = t + e1 + e2; :}
-		| LPAREN condition RPAREN;
+condition ::= function_body:e1 cond_type:t function_body:e2		{: RESULT = t + e1 + e2; :}
+		| LPAREN condition:c RPAREN								{: RESULT = c; :};
 
 cond_type ::= IN:in		{: RESULT = "substring?"; :}
 			| EQ:eq 	{: RESULT = "equal?"; :};
