@@ -55,7 +55,8 @@ class CalculatorParser {
 	private void term() throws IOException, ParseError {
 		/*term -> factor term2*/
 
-		if (lookaheadToken == '+' || lookaheadToken == '-' || lookaheadToken == '*' || lookaheadToken == '/' || lookaheadToken == ')' || lookaheadToken == -1 )
+		// if anything else but number or ( then error
+		if (lookaheadToken != '(' && (lookaheadToken < '0' || lookaheadToken > '9'))
 			throw new ParseError("Parse Error3");
 
 		System.out.println("Mesa sto term: " + (char)lookaheadToken);
@@ -70,9 +71,13 @@ private void exp2() throws IOException, ParseError {
 		    | - term exp2
 		    | ε             */
 
+	// ε case
+	if (lookaheadToken == ')' || lookaheadToken == -1 || lookaheadToken == '\n')
+		return;
 
-	if (lookaheadToken == '*' || lookaheadToken == '/' || lookaheadToken == '(' || (lookaheadToken > '0' && lookaheadToken < '9') )
-		throw new ParseError("Parse Error4");
+	// if anything else but + or - then error
+	if (lookaheadToken != '+' && lookaheadToken != '-' )
+		throw new ParseError("Syntax error at: " + (char)lookaheadToken + "\nExpected: " + "\"+\" or \"-\"");
 
 	System.out.println("Mesa sto exp2: " + (char)lookaheadToken);
 
@@ -83,15 +88,13 @@ private void exp2() throws IOException, ParseError {
 		exp2();
 	}
 
-	// ε case
-	return ;
 }
 //=====================================================================
 private void factor() throws IOException, ParseError {
 	/*term -> factor term2*/
 	System.out.println("Mesa sto factor: " + (char)lookaheadToken);
 
-	if (lookaheadToken == '+' || lookaheadToken == '-' || lookaheadToken == '*' || lookaheadToken == '/' || lookaheadToken == ')' || lookaheadToken == -1 || lookaheadToken == '\n')
+	if (lookaheadToken != '(' && (lookaheadToken < '0' || lookaheadToken > '9'))
 		throw new ParseError("Parse Error");
 
 	if (lookaheadToken == '('){
@@ -109,17 +112,18 @@ private void term2() throws IOException, ParseError {
 		     | ε*/
 	System.out.println("Mesa sto term2: " + (char)lookaheadToken);
 
-	if (lookaheadToken == '(' || (lookaheadToken > '0' && lookaheadToken < '9') )
+	// ε case
+	if (lookaheadToken == ')' || lookaheadToken == '+' || lookaheadToken == '-' || lookaheadToken == -1 || lookaheadToken == '\n')
+		return;
+
+	// if anything but * or / then error
+	if (lookaheadToken != '*' && lookaheadToken != '/')
 		throw new ParseError("Parse Error2");
 
-	if (lookaheadToken == '*' || lookaheadToken == '/')
-	{
-		consume(lookaheadToken);
-		factor();
-		term2();
-	}
+	consume(lookaheadToken);
+	factor();
+	term2();
 
-	return;
 }
 //=====================================================================
 	public static void main(String[] args) {
