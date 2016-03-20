@@ -1,17 +1,17 @@
-// name() {
-//     "John"
-// }
-//
-// repeat(x) {
-//     x + x
-// }
-
-cond_repeat(c, x)
-{
-	hello()
-	hello(myfriend, myfiend2)
-	"foo" + "foo" + hello(world)
-
+name() {
+    "John"
 }
-// cond_repeat("yes", name())
-cond_repeat(jey(), "no", "Jane", yooo())
+
+repeat(x) {
+    x + x
+}
+
+cond_repeat(c, x) {
+    if (c = "yes")
+        repeat(x)
+    else
+        x
+}
+
+cond_repeat("yes", name())
+cond_repeat("no", "Jane")

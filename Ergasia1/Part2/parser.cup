@@ -27,7 +27,6 @@ terminal	IN;
 terminal	IF, ELSE; // if_then_statement, if_then_else_statement
 terminal	COMMA, LBRACE, RBRACE, LPAREN, RPAREN;
 terminal	EQ, PLUS;
-terminal 	RPAREN_LBRACE;
 
 terminal 	String STRING_LITERAL;
 terminal 	String IDENTIFIER;
@@ -36,11 +35,11 @@ terminal 	String IDENTIFIER;
 non terminal String expr;	// initial state
 non terminal String function_declaration, function_body;
 non terminal String inner_function_call, outer_function_call;							// function calls
-non terminal String inner_parameters_list, decl_parameters_list, call_parameters_list;	// parameter types
+non terminal String inner_parameters_list, decl_parameters_list, outer_parameters_list;	// parameter types
 non terminal String parameters_part, parameters_part2, parameters_part3;
 non terminal String expressions, expressions2, expressions3;
 non terminal String if_expression, condition, cond_type;
-non terminal String literal, literal2;
+non terminal String literal, parameters;
 //===================================================================
 //===================================================================
 
@@ -52,67 +51,58 @@ expr ::= expr function_declaration:func			{: System.out.println("(define " + fun
 		| expr outer_function_call:out			{: System.out.println("(" + out + ")"); :}
 		| ;
 
-outer_function_call ::= IDENTIFIER:id LPAREN call_parameters_list:param RPAREN 	{: RESULT =  id + param ; :};
+function_declaration ::= IDENTIFIER:id LPAREN parameters:dec function_body:bd RBRACE	{: RESULT = "(" + id + dec + ") " + bd; :}
+						| IDENTIFIER:id LPAREN RPAREN LBRACE function_body:bd RBRACE	{: RESULT = "(" + id + ") " + bd; :};
 
+outer_function_call ::= IDENTIFIER:id LPAREN parameters:param RPAREN	{: RESULT =  id + param; :}
+					| IDENTIFIER:id LPAREN RPAREN						{: RESULT =  id; :};
 
-function_declaration ::= IDENTIFIER:id LPAREN decl_parameters_list:dec RPAREN_LBRACE function_body:bd RBRACE
-						{: RESULT = "(" + id + dec + ") " + bd; :};
+inner_function_call ::= IDENTIFIER:id LPAREN inner_parameters_list:param RPAREN		{: RESULT =  id + param; :}
+					| IDENTIFIER:id LPAREN RPAREN									{: RESULT =  id; :};
 
+parameters::= outer_parameters_list:p1					{: RESULT = p1; :}
+			 | decl_parameters_list:p2 RPAREN LBRACE	{: RESULT = p2 ; :}
+			 ;
 
-//=====================================================
-// function body giati borei na parei kai if stmt ektos apo expressions
-inner_parameters_list ::= function_body:exp parameters_part:c	{: RESULT = exp + c; :}
-						| 										{: RESULT = ""; :};
+outer_parameters_list ::= expressions:exp parameters_part:c		{: RESULT = exp + c; :};
 
-parameters_part ::= COMMA inner_parameters_list:d				{: RESULT = d; :}
+inner_parameters_list ::= function_body:exp parameters_part3:c	{: RESULT = " " + exp + c; :};
+
+parameters_part3 ::= COMMA inner_parameters_list:d				{: RESULT = d; :}
 				|												{: RESULT = ""; :};
-//=====================================================
-decl_parameters_list ::= expressions2:exp parameters_part2:c	{: RESULT = exp + c; :}
-					| 											{: RESULT = ""; :};
+
+decl_parameters_list ::= expressions2:exp parameters_part2:c	{: RESULT = " " + exp + c; :};
+
+
+parameters_part ::= COMMA outer_parameters_list:d				{: RESULT = d; :}
+				|												{: RESULT = ""; :};
 
 parameters_part2 ::= COMMA decl_parameters_list:d				{: RESULT = d; :}
 				| 												{: RESULT = ""; :};
-//=====================================================
-call_parameters_list ::= expressions3:exp parameters_part3:c	{: RESULT = exp + c; :}
-					| 											{: RESULT = ""; :};
 
-parameters_part3 ::= COMMA call_parameters_list:d				{: RESULT = d; :}
-				| 												{: RESULT = ""; :};
-//=====================================================
-function_body ::= expressions:e							{: RESULT = e; :}
+
+expressions ::= STRING_LITERAL:s							{: RESULT = " \"" + s + "\"" ; :}
+			| outer_function_call:out						{: RESULT = " (" + out + ")"; :}
+			| expressions:e1 PLUS expressions:e2			{: RESULT = "(" + "string-append" + " " + e1 + " " + e2 + ")" ;:}
+			| LPAREN expressions:e RPAREN					{: RESULT = e; :};
+
+expressions2 ::= IDENTIFIER:e								{: RESULT = e; :};
+
+expressions3 ::= literal:lit								{: RESULT = lit; :}
+				| expressions3:e1 PLUS expressions3:e2		{: RESULT = "(" + "string-append" + " " + e1 + " " + e2 + ")" ; :}
+				| LPAREN expressions3:e RPAREN				{: RESULT = e; :};
+
+literal ::= IDENTIFIER:id			{: RESULT = id; :}
+		| STRING_LITERAL:s			{: RESULT = "\"" + s + "\"" ; :}
+		| inner_function_call:c		{: RESULT = "(" + c + ")"; :};
+
+function_body ::= expressions3:e						{: RESULT = e; :}
 				| if_expression:if_e					{: RESULT = if_e; :};
-
-// expressions for the inner parameters
-expressions ::= expressions:e1 PLUS expressions:e2		{: RESULT = "(" + "string-append" + " " + e1 + " " + e2 + ")" ; :}
-			| LPAREN expressions:e RPAREN				{: RESULT = e; :}
-			| literal:lit								{: RESULT = lit; :};
-
-// expressions2 for the declaration parameters (IDENTIFIER or parenthesized expressions)
-// CONCAT is not allowed when declaring ex. my_func(x+x){ body }	// error
-expressions2 ::=  LPAREN expressions2:e RPAREN			{: RESULT = e; :}
-				| literal2:lit							{: RESULT = lit; :};
-
-// expressions3 for the call parameters
-expressions3 ::= expressions3:e1 PLUS expressions3:e2	{: RESULT = "(" + "string-append" + " " + e1 + " " + e2 + ")" ;:}
-			| LPAREN expressions3:e RPAREN				{: RESULT = e; :}
-			| STRING_LITERAL:s							{: RESULT = " \"" + s + "\"" ; :}
-			| outer_function_call:out					{: RESULT = " (" + out + ")"; :};
 
 if_expression ::= IF LPAREN condition:cond RPAREN function_body:b1 ELSE function_body:b2	{: RESULT = "(if " + "(" + cond + ")" + b1 + b2 + ")"; :};
 
-// simple in/eq condition & multiple parentheses outer ex. if ((x in "foo"))
-condition ::= function_body:e1 cond_type:t function_body:e2		{: RESULT = t + e1 + e2; :}
-		| LPAREN condition:c RPAREN								{: RESULT = c; :};
+condition ::= function_body:e1 cond_type:t function_body:e2			{: RESULT = t + e1 + " " + e2; :}
+			| LPAREN condition:c RPAREN								{: RESULT = c; :};
 
-cond_type ::= IN:in		{: RESULT = "substring?"; :}
-			| EQ:eq 	{: RESULT = "equal?"; :};
-
-// literal for the inner parameters
-literal ::= IDENTIFIER:id			{: RESULT = id; :}
-		| STRING_LITERAL:s			{: RESULT = "\"" + s + "\"" ; :}
-		| inner_function_call:c		{: RESULT = " (" + c + ")"; :};
-
-// literal2 for the function declaration
-literal2 ::= IDENTIFIER:id			{: RESULT = " " + id; :};
-
-inner_function_call ::= IDENTIFIER:id LPAREN inner_parameters_list:param RPAREN 	{: RESULT =  id + param ; :};
+cond_type ::= IN:in		{: RESULT = "substring? "; :}
+			| EQ:eq 	{: RESULT = "equal? "; :};

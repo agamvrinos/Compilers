@@ -1,7 +1,3 @@
-# You need CUP v0.10j (or newer) for this makefile to work (for java12.cup)
-#
-# CUP classes should be included in CLASSPATH
-
 CUP        = java_cup.Main  <
 JFLEX      = jflex
 JAVA       = java

@@ -43,8 +43,6 @@ DocumentationComment = "/*" "*"+ [^/*] ~"*/"
 /* identifiers */
 Identifier = [:jletter:][:jletterdigit:]*
 
-RPAREN_LBRACE = \){WhiteSpace}*\{
-
 /* string literals */
 StringCharacter = [^\r\n\"\\]
 
@@ -92,10 +90,7 @@ StringCharacter = [^\r\n\"\\]
   {LineTerminator}               { throw new RuntimeException("Unterminated string at end of line"); }
 }
 
-{RPAREN_LBRACE} 				 { return symbol(sym.RPAREN_LBRACE); }
-
 
 /* error fallback */
 [^]                              { throw new RuntimeException("Illegal character \""+yytext()+
                                                               "\" at line "+yyline+", column "+yycolumn); }
-// <<EOF>>                          { return symbol(sym.EOF); }
