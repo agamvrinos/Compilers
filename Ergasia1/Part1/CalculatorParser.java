@@ -5,8 +5,8 @@ class CalculatorParser {
 
     private int lookaheadToken;
     private InputStream in;
-	private int right_val = 0;
-	private int result = 0;
+	private double right_val = 0;
+	private double result = 0;
 
 
 //=====================================================================
@@ -16,9 +16,9 @@ class CalculatorParser {
 	}
 //=====================================================================
 	public void parse() throws IOException, ParseError {
-		int final_res = exp();
+		double final_res = exp();
 
-		System.out.println("Final Result: " + final_res);
+		System.out.println("Final Result: " + cutDigits(final_res));
 
 		if (lookaheadToken != '\n' && lookaheadToken != -1)
 		    throw new ParseError();
@@ -41,7 +41,7 @@ class CalculatorParser {
 
     }
 //=====================================================================
-	private int exp() throws IOException, ParseError {
+	private double exp() throws IOException, ParseError {
 		/*exp -> term exp2*/
 
 		// if look_ahead_table[exp,lookaheadToken] == error then throw
@@ -52,15 +52,15 @@ class CalculatorParser {
 		System.out.println("Mesa sto exp: " + (char)lookaheadToken);
 		System.out.println("==========================================");
 
-		int x = term();
-		int y = exp2(x);
+		double x = term();
+		double y = exp2(x);
 
 		System.out.println("res: " + y);
 
 		return y;
     }
 //=====================================================================
-	private int term() throws IOException, ParseError {
+	private double term() throws IOException, ParseError {
 		/*term -> factor term2*/
 
 		// if anything else but number or ( then error
@@ -71,10 +71,8 @@ class CalculatorParser {
 		System.out.println("Mesa sto term: " + (char)lookaheadToken);
 		System.out.println("==========================================");
 
-		int res = factor();
-		System.out.println("==============================");
-		System.out.println("Mou gurise to factor: " + res);
-		System.out.println("==============================");
+		double res = factor();
+
 
 		res = term2(res);
 
@@ -82,11 +80,10 @@ class CalculatorParser {
 
     }
 //=====================================================================
-private int exp2(int token) throws IOException, ParseError {
+private double exp2(double token) throws IOException, ParseError {
 	/*exp2 -> + term exp2
 		    | - term exp2
 		    | ε             */
-
 
 	System.out.println("==========================================");
 	System.out.println("Mesa sto exp2: " + (char)lookaheadToken);
@@ -123,7 +120,7 @@ private int exp2(int token) throws IOException, ParseError {
 	return result;
 }
 //=====================================================================
-private int factor() throws IOException, ParseError {
+private double factor() throws IOException, ParseError {
 	/*term -> factor term2*/
 
 	System.out.println("==========================================");
@@ -135,7 +132,7 @@ private int factor() throws IOException, ParseError {
 
 	if (lookaheadToken == '('){
 		consume('(');
-		result = exp() + '0';
+		result = exp() + '0';	// un-digitize
 		System.out.println("Mesa sto result: " + digitize(result));
 		consume(')');
 	}
@@ -146,7 +143,7 @@ private int factor() throws IOException, ParseError {
 	return digitize(result);
 }
 //=====================================================================
-private int term2(int token) throws IOException, ParseError {
+private double term2(double token) throws IOException, ParseError {
 	/*term2 -> * factor term2
 		     | / factor term2
 		     | ε*/
@@ -183,9 +180,16 @@ private int term2(int token) throws IOException, ParseError {
 
 	return result;
 }
-
-private int digitize(int ascii_num){
+//===========================
+//==== support functions ====
+//===========================
+private double digitize(double ascii_num){
 	return ascii_num - '0';
+}
+
+public static String cutDigits(double num) {
+    if((int) num == num) return Integer.toString((int) num); //for you, StackOverflowException
+    return String.valueOf(num); 							 //and for you, Christian Kuetbach
 }
 //=====================================================================
 	public static void main(String[] args) {
