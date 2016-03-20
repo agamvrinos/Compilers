@@ -13,10 +13,10 @@ JAR 	   = -cp java-cup-11b.jar
 all: flex cup compile run
 
 flex:
-	$(JFLEX) mine.flex
+	$(JFLEX) lexer.flex
 
 cup:
-	$(JAVA) $(JAR) $(CUP) mine.cup
+	$(JAVA) $(JAR) $(CUP) parser.cup
 
 compile:
 	$(JAVAC) $(JAR) Main.java parser.java Scanner.java sym.java

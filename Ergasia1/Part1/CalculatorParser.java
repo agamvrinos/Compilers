@@ -18,10 +18,13 @@ class CalculatorParser {
 	public void parse() throws IOException, ParseError {
 		double final_res = exp();
 
-		System.out.println("Final Result: " + cutDigits(final_res));
+		System.out.println("========================");
+		System.out.println("Successful parse!");
+		System.out.println("Result: " + cutDigits(final_res));
+		System.out.println("========================");
 
 		if (lookaheadToken != '\n' && lookaheadToken != -1)
-		    throw new ParseError();
+			throw new ParseError();
 	}
 //=====================================================================
 	private void consume(int symbol) throws IOException, ParseError {
@@ -35,11 +38,7 @@ class CalculatorParser {
 		while (lookaheadToken == ' ' && lookaheadToken != -1 && lookaheadToken != '\n'){
 			lookaheadToken = in.read();
 		}
-
-		if (lookaheadToken == -1 || lookaheadToken == '\n')
-			System.out.println("End of File");
-
-    }
+	}
 //=====================================================================
 	private double exp() throws IOException, ParseError {
 		/*exp -> term exp2*/
@@ -48,46 +47,30 @@ class CalculatorParser {
 		if (lookaheadToken != '(' && (lookaheadToken < '0' || lookaheadToken > '9'))
 			throw new ParseError("Syntax error at: " + (char)lookaheadToken);
 
-		System.out.println("==========================================");
-		System.out.println("Mesa sto exp: " + (char)lookaheadToken);
-		System.out.println("==========================================");
-
 		double x = term();
 		double y = exp2(x);
 
-		System.out.println("res: " + y);
-
 		return y;
-    }
+	}
 //=====================================================================
 	private double term() throws IOException, ParseError {
 		/*term -> factor term2*/
 
 		// if anything else but number or ( then error
 		if (lookaheadToken != '(' && (lookaheadToken < '0' || lookaheadToken > '9'))
-			throw new ParseError("Parse Error3");
-
-		System.out.println("==========================================");
-		System.out.println("Mesa sto term: " + (char)lookaheadToken);
-		System.out.println("==========================================");
+			throw new ParseError("Syntax error at: " + (char)lookaheadToken);
 
 		double res = factor();
-
-
 		res = term2(res);
 
 		return res;
 
-    }
+	}
 //=====================================================================
 private double exp2(double token) throws IOException, ParseError {
 	/*exp2 -> + term exp2
 		    | - term exp2
 		    | ε             */
-
-	System.out.println("==========================================");
-	System.out.println("Mesa sto exp2: " + (char)lookaheadToken);
-	System.out.println("==========================================");
 
 	// ε case
 	if (lookaheadToken == ')' || lookaheadToken == -1 || lookaheadToken == '\n')
@@ -110,10 +93,6 @@ private double exp2(double token) throws IOException, ParseError {
 	else if (operator == '-'){
 		result = token - right_val;
 	}
-	System.out.println("========================");
-	System.out.println("right_val: " + right_val);
-	System.out.println("========================");
-	System.out.println("Result: " + result);
 
 	result = exp2(result);
 
@@ -123,17 +102,12 @@ private double exp2(double token) throws IOException, ParseError {
 private double factor() throws IOException, ParseError {
 	/*term -> factor term2*/
 
-	System.out.println("==========================================");
-	System.out.println("Mesa sto factor: " + (char)lookaheadToken);
-	System.out.println("==========================================");
-
 	if (lookaheadToken != '(' && (lookaheadToken < '0' || lookaheadToken > '9'))
-		throw new ParseError("Parse Error");
+		throw new ParseError("Syntax error at: " + (char)lookaheadToken);
 
 	if (lookaheadToken == '('){
 		consume('(');
 		result = exp() + '0';	// un-digitize
-		System.out.println("Mesa sto result: " + digitize(result));
 		consume(')');
 	}
 	else {
@@ -148,17 +122,13 @@ private double term2(double token) throws IOException, ParseError {
 		     | / factor term2
 		     | ε*/
 
-	System.out.println("==========================================");
-	System.out.println("Mesa sto term2: " + (char)lookaheadToken);
-	System.out.println("==========================================");
-
 	// ε case
 	if (lookaheadToken == ')' || lookaheadToken == '+' || lookaheadToken == '-' || lookaheadToken == -1 || lookaheadToken == '\n')
 		return token;
 
 	// if anything but * or / then error
 	if (lookaheadToken != '*' && lookaheadToken != '/')
-		throw new ParseError("Parse Error2");
+		throw new ParseError("Syntax error at: " + (char)lookaheadToken);
 
 	// if i get here i have * or / for sure
 	int operator = lookaheadToken;
@@ -176,8 +146,6 @@ private double term2(double token) throws IOException, ParseError {
 
 	result = term2(result);
 
-	System.out.println("Result: " + result);
-
 	return result;
 }
 //===========================
@@ -188,26 +156,21 @@ private double digitize(double ascii_num){
 }
 
 public static String cutDigits(double num) {
-    if((int) num == num) return Integer.toString((int) num); //for you, StackOverflowException
-    return String.valueOf(num); 							 //and for you, Christian Kuetbach
+	if((int) num == num)
+		return Integer.toString((int) num);
+	return String.valueOf(num);
 }
 //=====================================================================
 	public static void main(String[] args) {
 		try {
-		    CalculatorParser parser = new CalculatorParser(System.in);
+			CalculatorParser parser = new CalculatorParser(System.in);
 			parser.parse();
-			// System.out.println(parser.parse());
-
-			System.out.println("========================");
-			System.out.println("Successful parse!");
-			System.out.println("========================");
-
 		}
 		catch (IOException e) {
-		    System.err.println(e.getMessage());
+			System.err.println(e.getMessage());
 		}
 		catch(ParseError err){
-		    System.err.println(err.getMessage());
+			System.err.println(err.getMessage());
 		}
 	}
 }
