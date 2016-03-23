@@ -1,15 +1,15 @@
 name()  {
-    "John"
+	"John"
 }
 
 name()
 
 surname() {
-    "Doe"
+	"Doe"
 }
 
 fullname(first_name, sep, last_name) {
-    first_name + sep + last_name
+	first_name + sep + last_name
 }
 
 surname()

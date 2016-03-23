@@ -1,0 +1,59 @@
+// allow multiple parentheses
+name() {
+	( x + y + ("foo" + (y)) + ((foo("foo"))) ) + x
+}
+
+// if else statement as a condition of another if else statement
+// also, nested if else case
+name2(x, y) {
+	if (if(x = y) x else d in ("fooo"))
+		( x_2 + y + ("foo" + y) + ((foo())) ) + x
+	else
+		if (y = "foo")
+			( x + y + ("foo" + y) + ((foo())) ) + x
+		else
+			"foo" + x + foo("FOO") + x + (x)
+}
+
+// EXTREME MEGA SICK CASE
+foo(){
+	if(x = "a")
+	   "Nikos"
+	else
+	   "Giannhs"	// in that case concat goes to "Giannhs"
+	+
+	if(y = "b")
+	   "Tasos"
+	else
+	   "Kostas"
+}
+// BUT if we add parentheses
+foo(){
+	(if(x = "a")
+	   "Nikos"
+	else
+	   "Giannhs")	// concat between the if else stmts
+	+
+	(if(y = "b")
+	   "Tasos"
+	else
+	   "Kostas")
+}
+
+// concat between different types inside a function
+// identifier + string + function_call + if_else
+name2(x, y) {
+	"foo" + x + foo("FOO") + foo2(bar) + (x) + (if (x = y) y else d)
+}
+
+// concat between if else statements inside a function
+name2(x, y) {
+	(if (x = y) y else d) + (if (x = y) y else d)
+}
+
+// if else statementt produces string so -> valid call. IDENTIFIERS not allowed
+// neither as argument nor in if else statement
+name(if ("foo" in "foo") "foo" else name("bar"), "foo")
+
+// concat inside an outer function call
+name(if ("foo" in "foo") "foo" else name("bar"), "foo" + "added" + call())
