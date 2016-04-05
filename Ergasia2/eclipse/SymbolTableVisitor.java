@@ -1,22 +1,31 @@
+import syntaxtree.ArrayType;
+import syntaxtree.BooleanType;
 import syntaxtree.ClassDeclaration;
 import syntaxtree.ClassExtendsDeclaration;
 import syntaxtree.Goal;
 import syntaxtree.Identifier;
+import syntaxtree.IntegerType;
 import syntaxtree.MainClass;
 import syntaxtree.Type;
 import syntaxtree.TypeDeclaration;
 import syntaxtree.VarDeclaration;
 import visitor.GJDepthFirst;
+import java.util.*;
 
 public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 		
 		SymbolTable table = null;
+		Set<String> class_names; 	// phase1 class names
+		
+		public SymbolTableVisitor(Set<String> class_names) {
+			this.class_names = class_names;
+		}
+		
 		/**
 	    * f0 -> MainClass()
 	    * f1 -> ( TypeDeclaration() )*
 	    * f2 -> <EOF>
 	    */
-		
 		public String visit(Goal n, String argu) {
 		  
 		  n.f0.accept(this, argu);
@@ -25,6 +34,7 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 		  
 		  return null;
 		}
+		
 		/**
 	    * f0 -> "class"
 	    * f1 -> Identifier()
@@ -129,22 +139,59 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	       String var_name = n.f1.accept(this, argu);
 	       n.f2.accept(this, argu);
 	       
+	       // if type = classType
+	       if (!var_type.equals("int") && !var_type.equals("int[]") && !var_type.equals("boolean")){			
+	    	   if (!class_names.contains(var_type))		// then check for possible forward declaration
+	    		   throw new RuntimeException(var_type + " cannot be resolved to a type");	// no forward declaration
+	       }
+	       
 	       SymbolType t = new SymbolType("variable", var_name, var_type);
 	       
 	       t.printType();
 	       
-	       table.insert(t);
+	       if (!table.insert(t))
+	    	   throw new RuntimeException("Variable redeclaration Error");	// same type name case
+	       
 	       return null;
 	    }
 	    
 	    /**
 	     * f0 -> <IDENTIFIER>
-	     */
+	    */
 	    public String visit(Identifier n, String argu) {
-	    
 	    	n.f0.accept(this, argu);
-	    	
 	    	return n.f0.toString();
+	    }
+	    
+	    /**
+	     * f0 -> "boolean"
+	    */
+	    public String visit(BooleanType n, String argu) {
+	       n.f0.accept(this, argu);
+	       return n.f0.toString();
+	    }
+	    
+	    /**
+	     * f0 -> "int"
+	    */
+	    public String visit(IntegerType n, String argu) {
+	       n.f0.accept(this, argu);
+	       return n.f0.toString();
+	    }
+	    /**
+	     * f0 -> "int"
+	     * f1 -> "["
+	     * f2 -> "]"
+	    */
+	    public String visit(ArrayType n, String argu) {
+	       String s = n.f0.toString();
+	       s = s + n.f1.toString();
+	       s = s + n.f2.toString();
+	    		   
+	       n.f0.accept(this, argu);
+	       n.f1.accept(this, argu);
+	       n.f2.accept(this, argu);
+	       return s;
 	    }
 	    
 	    /**
@@ -152,19 +199,10 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	     *       | BooleanType()
 	     *       | IntegerType()
 	     *       | Identifier()
-	     */
+	    */
 	    public String visit(Type n, String argu) {
-	       n.f0.accept(this, argu);
-	       String s = "";
-	       
-	       if (n.f0.which == 0)
-	    	   s = "intArray";
-	       else if(n.f0.which == 1)
-	    	   s = "boolean";
-	       else if(n.f0.which == 2)
-	    	   s = "integer";
-	       else if(n.f0.which == 3)
-	    	   s = "classType";
+	    	
+	       String s = n.f0.accept(this, argu);
 	       
 	       return s;
 	    }

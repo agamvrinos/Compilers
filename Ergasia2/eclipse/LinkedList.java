@@ -6,9 +6,19 @@ class LinkedList{
 
 class Element {
     int Age ;
+//    int [] Age;
     int Salary ;
     boolean Married ;
     int [] myarr;
+    
+    A b;
+
 
 }
+
+class A {
+	
+}
+
+
 

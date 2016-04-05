@@ -24,17 +24,22 @@ public class SymbolTable {
 	}
 	
 	boolean insert(SymbolType type){
-		if (sym_table.containsKey(scopeName)){		// uparxei to key
+		if (sym_table.containsKey(scopeName)){				// uparxei to key
 			
-			if (sym_table.get(scopeName).contains(type)){	// an to value pou paw na valw uparxei
-				System.out.println("Redeclaration");		// redeclaration error
-				return false;
+			Set<SymbolType> syms= sym_table.get(scopeName);
+			
+			for (SymbolType t: syms){
+				if (t.name.equals(type.name)){
+					System.out.println("Variable name already exists at " + scopeName + " scope");
+					System.out.println("Redeclaration");	
+					return false;
+				}
 			}
-			sym_table.get(scopeName).add(type);		// ara vale sto uparxon value to new element
+			sym_table.get(scopeName).add(type);				// ara vale sto uparxon value to new element
 		}
 		else {
 			Set<SymbolType> val = new HashSet<SymbolType>();	// den uparxei
-			val.add(type);							// ara ftiakse new kai vale ekei tin timi
+			val.add(type);										// ara ftiakse new kai vale ekei tin timi
 			
 			sym_table.put(scopeName,val);
 		}
@@ -42,10 +47,23 @@ public class SymbolTable {
 		return true;
 	}	
 	
-	boolean lookup(String type){
-//		while (parent != null){
-//			String scope = sym_table.getKey();
-//		}
+	boolean lookup(String name){
+		
+		SymbolTable temp = this;
+		
+		while (temp != null){
+			Set<SymbolType> syms = temp.sym_table.get(temp.scopeName);
+			
+			for (SymbolType type: syms){
+				if (type.name.equals(name)){
+					System.out.println("Found it in " + temp.scopeName + " scope");
+					return true;
+				}
+			}
+			System.out.println("DID NOT Found it in " + temp.scopeName + " scope");
+			temp = temp.parent;
+		}
+		
 		return false;
 	}
 	

@@ -81,7 +81,12 @@ public class ClassNamesVisitor extends GJDepthFirst<Set<String>, Integer>{
     */
     public Set<String> visit(ClassDeclaration n, Integer argu){
     	
-    	class_names.add(n.f1.f0.toString());	// add class name to HashSet
+    	String class_name = n.f1.f0.toString();
+    	
+    	if (class_names.contains(class_name))
+    		throw new RuntimeException("Type " + class_name + " already defined");
+    	
+    	class_names.add(class_name);			// add class name to HashSet
         System.out.println(n.f1.f0.toString());
         
         n.f0.accept(this, argu);
