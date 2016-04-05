@@ -25,7 +25,13 @@ public class SymbolType {
 		}
 	}
 	
+	SymbolType(){
+		
+	}
+	
 	void printType(){
+		
+		System.out.println("******************************");
 		System.out.println("Kind = " + kind);
 		System.out.println("Name = " + name);
 		System.out.println("Type|RetVal = " + type);
@@ -34,7 +40,6 @@ public class SymbolType {
 			for(String e: parameters)
 				System.out.println("Parameter type: " + e);
 		}
-		System.out.println();
 	}
 	
 }

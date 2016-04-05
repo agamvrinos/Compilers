@@ -1,20 +1,23 @@
-import java.util.Map;
-import java.util.Set;
-
 import syntaxtree.ClassDeclaration;
 import syntaxtree.ClassExtendsDeclaration;
 import syntaxtree.Goal;
+import syntaxtree.Identifier;
 import syntaxtree.MainClass;
+import syntaxtree.Type;
+import syntaxtree.TypeDeclaration;
+import syntaxtree.VarDeclaration;
 import visitor.GJDepthFirst;
 
-public class SymbolTableVisitor extends GJDepthFirst<Integer, Integer>{
+public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 		
+		SymbolTable table = null;
 		/**
 	    * f0 -> MainClass()
 	    * f1 -> ( TypeDeclaration() )*
 	    * f2 -> <EOF>
 	    */
-		public Integer visit(Goal n, Integer argu) {
+		
+		public String visit(Goal n, String argu) {
 		  
 		  n.f0.accept(this, argu);
 		  n.f1.accept(this, argu);
@@ -42,7 +45,7 @@ public class SymbolTableVisitor extends GJDepthFirst<Integer, Integer>{
 	    * f16 -> "}"
 	    * f17 -> "}"
 	    */
-	    public Integer visit(MainClass n, Integer argu) {
+	    public String visit(MainClass n, String argu) {
 			  
 			n.f0.accept(this, argu);
 			n.f1.accept(this, argu);
@@ -74,9 +77,13 @@ public class SymbolTableVisitor extends GJDepthFirst<Integer, Integer>{
 	    * f4 -> ( MethodDeclaration() )*
 	    * f5 -> "}"
 	    */
-	    public Integer visit(ClassDeclaration n, Integer argu){
+	    public String visit(ClassDeclaration n, String argu){
 	    	
-	    	System.out.println("HAHAH");
+	    	if (table == null)
+	    		table = new SymbolTable(n.f1.f0.toString());
+	    	else
+	    		table.enterScope(n.f1.f0.toString());
+	    	
 	        n.f0.accept(this, argu);
 	        n.f1.accept(this, argu);
 	        n.f2.accept(this, argu);
@@ -97,7 +104,7 @@ public class SymbolTableVisitor extends GJDepthFirst<Integer, Integer>{
 	     * f6 -> ( MethodDeclaration() )*
 	     * f7 -> "}"
 	    */
-	    public Integer visit(ClassExtendsDeclaration n, Integer argu) {
+	    public String visit(ClassExtendsDeclaration n, String argu) {
 	        
 	        n.f0.accept(this, argu);
 	        n.f1.accept(this, argu);
@@ -109,6 +116,57 @@ public class SymbolTableVisitor extends GJDepthFirst<Integer, Integer>{
 	        n.f7.accept(this, argu);
 	        
 	        return null;
-	     }
+	    }
+	    
+	    /**
+	     * f0 -> Type()
+	     * f1 -> Identifier()
+	     * f2 -> ";"
+	    */
+	    public String visit(VarDeclaration n, String argu) {
+	    	
+	       String var_type = n.f0.accept(this, argu);
+	       String var_name = n.f1.accept(this, argu);
+	       n.f2.accept(this, argu);
+	       
+	       SymbolType t = new SymbolType("variable", var_name, var_type);
+	       
+	       t.printType();
+	       
+	       table.insert(t);
+	       return null;
+	    }
+	    
+	    /**
+	     * f0 -> <IDENTIFIER>
+	     */
+	    public String visit(Identifier n, String argu) {
+	    
+	    	n.f0.accept(this, argu);
+	    	
+	    	return n.f0.toString();
+	    }
+	    
+	    /**
+	     * f0 -> ArrayType()
+	     *       | BooleanType()
+	     *       | IntegerType()
+	     *       | Identifier()
+	     */
+	    public String visit(Type n, String argu) {
+	       n.f0.accept(this, argu);
+	       String s = "";
+	       
+	       if (n.f0.which == 0)
+	    	   s = "intArray";
+	       else if(n.f0.which == 1)
+	    	   s = "boolean";
+	       else if(n.f0.which == 2)
+	    	   s = "integer";
+	       else if(n.f0.which == 3)
+	    	   s = "classType";
+	       
+	       return s;
+	    }
 	   
 }
