@@ -18,7 +18,7 @@ class Main {
 			ClassNamesVisitor eval = new ClassNamesVisitor();
 			Set<String> class_names = root.accept(eval, null);	// get phase1 results
 			//==================== PHASE 2======================
-			SymbolTableVisitor eval2 = new SymbolTableVisitor(class_names);
+			SymbolTableVisitor eval2 = new SymbolTableVisitor(class_names);	// pass phase1 results to 2nd visitor
 			root.accept(eval2, null);
 			//==================================================
 			

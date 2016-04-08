@@ -2,10 +2,15 @@ import syntaxtree.ArrayType;
 import syntaxtree.BooleanType;
 import syntaxtree.ClassDeclaration;
 import syntaxtree.ClassExtendsDeclaration;
+import syntaxtree.FormalParameter;
+import syntaxtree.FormalParameterList;
+import syntaxtree.FormalParameterTail;
+import syntaxtree.FormalParameterTerm;
 import syntaxtree.Goal;
 import syntaxtree.Identifier;
 import syntaxtree.IntegerType;
 import syntaxtree.MainClass;
+import syntaxtree.MethodDeclaration;
 import syntaxtree.Type;
 import syntaxtree.TypeDeclaration;
 import syntaxtree.VarDeclaration;
@@ -14,11 +19,48 @@ import java.util.*;
 
 public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 		
-		SymbolTable table = null;
+		public static Map<String, SymbolTable> globalScope;
+		public static Map<SymbolTable, SymbolTable> localScopes;
 		Set<String> class_names; 	// phase1 class names
+		Set<String> method_parameter_names;
+		List<String> method_parameter_types;
+		SymbolTable table = null;
 		
 		public SymbolTableVisitor(Set<String> class_names) {
 			this.class_names = class_names;
+			globalScope = new HashMap<String, SymbolTable>();
+			localScopes = new HashMap<SymbolTable, SymbolTable>();
+			method_parameter_names = new HashSet<String>();
+			method_parameter_types = new ArrayList<String>();
+		}
+		
+		void printLocalScopes(){
+			
+			System.out.println("*****************************");
+			System.out.println("Printing Local Scopes");
+			System.out.println("*****************************");
+			for (Map.Entry<SymbolTable, SymbolTable> entry : localScopes.entrySet()) {
+	    	    String key = entry.getKey().scope_name;
+	    	    SymbolTable s = entry.getValue();
+	    	    String val = "";
+	    	    if (s != null)
+	    	    	val = s.scope_name;
+	    	    System.out.println("Key: " + key);
+    	    	System.out.println("Value: " + ((s == null) ? "null" : val));
+	    	    System.out.println("------------------------");
+	    	}
+		}
+		
+		void printAllSymbolTables(){
+			
+			System.out.println("*****************************");
+			System.out.println("Printing Symbol Tables");
+			System.out.println("*****************************");
+			for (Map.Entry<SymbolTable, SymbolTable> entry : localScopes.entrySet()) {
+				SymbolTable key = entry.getKey();
+				key.printSymbolTable();
+	    	    
+	    	}
 		}
 		
 		/**
@@ -31,6 +73,9 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 		  n.f0.accept(this, argu);
 		  n.f1.accept(this, argu);
 		  n.f2.accept(this, argu);
+		  
+		  printLocalScopes();
+		  printAllSymbolTables();
 		  
 		  return null;
 		}
@@ -89,10 +134,11 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	    */
 	    public String visit(ClassDeclaration n, String argu){
 	    	
-	    	if (table == null)
-	    		table = new SymbolTable(n.f1.f0.toString());
-	    	else
-	    		table.enterScope(n.f1.f0.toString());
+	    	String name = n.f1.f0.toString();
+    		table = new SymbolTable();
+	    	table.scope_name = name;
+	    	
+	    	globalScope.put(name, table);
 	    	
 	        n.f0.accept(this, argu);
 	        n.f1.accept(this, argu);
@@ -116,14 +162,21 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	    */
 	    public String visit(ClassExtendsDeclaration n, String argu) {
 	        
+	    	table = new SymbolTable();
+	    	table.scope_name = n.f1.f0.toString();
+	    	
 	        n.f0.accept(this, argu);
 	        n.f1.accept(this, argu);
 	        n.f2.accept(this, argu);
-	        n.f3.accept(this, argu);
+	        String extended_class = n.f3.accept(this, argu);
 	        n.f4.accept(this, argu);
 	        n.f5.accept(this, argu);
 	        n.f6.accept(this, argu);
 	        n.f7.accept(this, argu);
+	        
+	        if (!globalScope.containsKey(extended_class))
+	        	throw new RuntimeException("Trying to extend class that hasn't yet declared");
+	        
 	        
 	        return null;
 	    }
@@ -140,21 +193,129 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	       n.f2.accept(this, argu);
 	       
 	       // if type = classType
-	       if (!var_type.equals("int") && !var_type.equals("int[]") && !var_type.equals("boolean")){			
-	    	   if (!class_names.contains(var_type))		// then check for possible forward declaration
-	    		   throw new RuntimeException(var_type + " cannot be resolved to a type");	// no forward declaration
+	       if (!var_type.equals("int") && !var_type.equals("int[]") && !var_type.equals("boolean")){
+	    	// then check for possible forward declaration
+	    	   if (!class_names.contains(var_type))				
+	    		   // no forward declaration
+	    		   throw new RuntimeException(var_type + " cannot be resolved to a type");	
 	       }
+	       
+	       if (argu != null)
+		       if (argu.equals("method"))
+		    	   if (method_parameter_names.contains(var_name))
+		    		   throw new RuntimeException("Duplicate local varible " + var_name);	
 	       
 	       SymbolType t = new SymbolType("variable", var_name, var_type);
 	       
-	       t.printType();
 	       
 	       if (!table.insert(t))
-	    	   throw new RuntimeException("Variable redeclaration Error");	// same type name case
+	    	   throw new RuntimeException("Variable Redeclaration Error");	// same type name case
 	       
 	       return null;
 	    }
 	    
+	    /**
+	     * f0 -> "public"
+	     * f1 -> Type()
+	     * f2 -> Identifier()
+	     * f3 -> "("
+	     * f4 -> ( FormalParameterList() )?
+	     * f5 -> ")"
+	     * f6 -> "{"
+	     * f7 -> ( VarDeclaration() )*
+	     * f8 -> ( Statement() )*
+	     * f9 -> "return"
+	     * f10 -> Expression()
+	     * f11 -> ";"
+	     * f12 -> "}"
+	     */
+	    
+	    // TODO: enter new scope for the method
+	    public String visit(MethodDeclaration n, String argu) {
+	       n.f0.accept(this, argu);
+	       String method_type = n.f1.accept(this, argu);
+	       String method_name = n.f2.accept(this, argu);
+	       n.f3.accept(this, argu);
+	       String val = n.f4.accept(this, argu);
+	       if (val == null){
+	    	   System.out.println("no method parameters");
+	       }
+	       
+	       SymbolType t = new SymbolType("method", method_name, method_type, method_parameter_types);	// create method type
+	       
+	       if (!table.insert(t))											// insert method type to cur scope
+	    	   throw new RuntimeException("Method Redeclaration Error");	// same method name case
+	       
+	       table = table.enterScope(method_name);	
+	       
+	       n.f5.accept(this, argu);
+	       n.f6.accept(this, argu);
+	       n.f7.accept(this, "method");
+	       n.f8.accept(this, argu);
+	       n.f9.accept(this, argu);
+	       n.f10.accept(this, argu);
+	       n.f11.accept(this, argu);
+	       n.f12.accept(this, argu);
+	       
+	       
+	       table = table.exitScope();
+	       
+	       method_parameter_names.clear();	// empty set for next method
+	       method_parameter_types.clear();
+	       
+	       return null;
+	    }
+	    //////////////////////////////////////////////////////////////////////////
+	    /**
+	     * f0 -> FormalParameter()
+	     * f1 -> FormalParameterTail()
+	     */
+	    public String visit(FormalParameterList n, String argu) {
+	       n.f0.accept(this, argu);
+	       n.f1.accept(this, argu);
+	       
+	       return null;
+	    }
+	    //////////////////////////////////////////////////////////////////////////
+	    /**
+	     * f0 -> Type()
+	     * f1 -> Identifier()
+	     */
+	    public String visit(FormalParameter n, String argu) {
+	    	
+	       String parameter_type = n.f0.accept(this, argu);	// we only need the type
+	       String parameter_name = n.f1.accept(this, argu);
+	       
+	       if (method_parameter_names.contains(parameter_name))		// checking for duplicate parameters in
+	    	   throw new RuntimeException("Duplicate parameter " + parameter_name);	// method declaration
+	       else {
+	    	   method_parameter_names.add(parameter_name);	// keep it to check redeclaration of parameters
+	    	   method_parameter_types.add(parameter_type);
+	       }
+	       
+	       return null;
+	    }
+	    //////////////////////////////////////////////////////////////////////////
+	    /**
+	     * f0 -> ( FormalParameterTerm() )*
+	     */
+	    public String visit(FormalParameterTail n, String argu) {
+//	    	System.out.println("one time");
+	       return n.f0.accept(this, argu);
+	    }
+	    //////////////////////////////////////////////////////////////////////////
+	    /**
+	     * f0 -> ","
+	     * f1 -> FormalParameter()
+	     */
+	    public String visit(FormalParameterTerm n, String argu) {
+	       n.f0.accept(this, argu);
+//	       System.out.println("mesa dw");
+	       String parameter_type = n.f1.accept(this, argu);
+//	       System.out.println(parameter_type);
+	       return null;
+	    }
+	    //////////////////////////////////////////////////////////////////////////
 	    /**
 	     * f0 -> <IDENTIFIER>
 	    */
@@ -162,7 +323,7 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	    	n.f0.accept(this, argu);
 	    	return n.f0.toString();
 	    }
-	    
+	    //////////////////////////////////////////////////////////////////////////
 	    /**
 	     * f0 -> "boolean"
 	    */

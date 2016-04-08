@@ -1,10 +1,10 @@
-import java.util.ArrayList;
+import java.util.*;
 
 public class SymbolType {
 	String kind;		// kind: var, method, classType
 	String name;		// name: var or method name
 	String type;		// Type: integer, boolean
-	ArrayList<String> parameters;	// if method then parameters else null
+	List<String> parameters;	// if method then parameters else null
 	
 	SymbolType(String kind, String name, String type){	// simple var
 		this.kind = kind;
@@ -13,21 +13,19 @@ public class SymbolType {
 		parameters = null;
 	}
 	
-	SymbolType(String kind, String name, String type, ArrayList<String> arg){	// method
+	SymbolType(String kind, String name, String type, List<String> parameters){	// method
 		this.kind = kind;
 		this.name = name;
 		this.type = type;
 		
-		parameters = new ArrayList<String>();
+		this.parameters = new ArrayList<String>();
 		
-		for (int i = 0; i < arg.size(); i++){
-			parameters.add(arg.get(i));
+		for (String arg : parameters){
+			this.parameters.add(arg);
 		}
+		
 	}
 	
-	SymbolType(){
-		
-	}
 	
 	void printType(){
 		
@@ -36,7 +34,7 @@ public class SymbolType {
 		System.out.println("Name = " + name);
 		System.out.println("Type|RetVal = " + type);
 		
-		if (kind == "method"){
+		if (kind.equals("method")){
 			for(String e: parameters)
 				System.out.println("Parameter type: " + e);
 		}
