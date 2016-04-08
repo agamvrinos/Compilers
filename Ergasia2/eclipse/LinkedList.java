@@ -10,6 +10,7 @@ class A {
 	
 	public int foo(int x, boolean y, int z){
 		int a;
+		int c;
 		
 		return 2;
 	}
@@ -19,12 +20,21 @@ class A {
 	}
 }
 
-class B extends A{
+class B {
 	int a;
+	
+	public int foo(int z){
+		return 2;
+	}
+}
+
+class C extends B {
+	int x;
 	
 	public int foo(int x){
 		return 2;
 	}
+	
 }
 
 

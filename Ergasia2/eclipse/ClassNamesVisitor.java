@@ -7,9 +7,11 @@ import visitor.GJDepthFirst;
 public class ClassNamesVisitor extends GJDepthFirst<Set<String>, Integer>{
 
 	public Set<String> class_names;
+	public Set<String> simple_classes;
 
 	public ClassNamesVisitor() {
 		class_names = new HashSet<>();
+		simple_classes = new HashSet<>();
 	}
 	/**
     * f0 -> MainClass()
@@ -47,6 +49,7 @@ public class ClassNamesVisitor extends GJDepthFirst<Set<String>, Integer>{
     public Set<String> visit(MainClass n, Integer argu) {
 		   
 		class_names.add(n.f1.f0.toString());	// add class name to HashSet
+		simple_classes.add(n.f1.f0.toString());
 		System.out.println(n.f1.f0.toString());
 		  
 		n.f0.accept(this, argu);
@@ -67,6 +70,7 @@ public class ClassNamesVisitor extends GJDepthFirst<Set<String>, Integer>{
 		n.f15.accept(this, argu);
 		n.f16.accept(this, argu);
 		n.f17.accept(this, argu);
+		
 		  
 		return null;
     }
@@ -87,6 +91,7 @@ public class ClassNamesVisitor extends GJDepthFirst<Set<String>, Integer>{
     		throw new RuntimeException("Type " + class_name + " already defined");
     	
     	class_names.add(class_name);			// add class name to HashSet
+    	simple_classes.add(class_name);
         System.out.println(n.f1.f0.toString());
         
         n.f0.accept(this, argu);
@@ -111,6 +116,11 @@ public class ClassNamesVisitor extends GJDepthFirst<Set<String>, Integer>{
     */
     public Set<String> visit(ClassExtendsDeclaration n, Integer argu) {
     	
+    	String extended_class = n.f3.f0.toString();
+    	
+    	if (!simple_classes.contains(extended_class))
+    		throw new RuntimeException("Inheritance Error");
+    	
     	class_names.add(n.f1.f0.toString());	// add class name to HashSet
         System.out.println(n.f1.f0.toString());
         
@@ -125,6 +135,7 @@ public class ClassNamesVisitor extends GJDepthFirst<Set<String>, Integer>{
         
         return null;
      }
-   
+    
+    
 
 }

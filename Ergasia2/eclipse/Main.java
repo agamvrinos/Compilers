@@ -1,9 +1,14 @@
 import syntaxtree.*;
 import visitor.*;
 import java.io.*;
+import java.util.Map;
 import java.util.Set;
 
 class Main {
+	
+	public static Map<String, SymbolTable> globalScope;
+	public static Map<SymbolTable, SymbolTable> localScopes;
+	
 	public static void main (String [] args){
 
 		FileInputStream fis = null;

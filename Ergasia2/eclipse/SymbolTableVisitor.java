@@ -19,19 +19,34 @@ import java.util.*;
 
 public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 		
-		public static Map<String, SymbolTable> globalScope;
-		public static Map<SymbolTable, SymbolTable> localScopes;
-		Set<String> class_names; 	// phase1 class names
+		
+		Set<String> class_names; 		// phase1 class names
 		Set<String> method_parameter_names;
 		List<String> method_parameter_types;
 		SymbolTable table = null;
 		
 		public SymbolTableVisitor(Set<String> class_names) {
 			this.class_names = class_names;
-			globalScope = new HashMap<String, SymbolTable>();
-			localScopes = new HashMap<SymbolTable, SymbolTable>();
+			Main.globalScope = new HashMap<String, SymbolTable>();
+			Main.localScopes = new HashMap<SymbolTable, SymbolTable>();
 			method_parameter_names = new HashSet<String>();
 			method_parameter_types = new ArrayList<String>();
+		}
+		
+		void printGlobalScopes(){
+			System.out.println("*****************************");
+			System.out.println("Printing Global Scopes");
+			System.out.println("*****************************");
+			for (Map.Entry<String, SymbolTable> entry : Main.globalScope.entrySet()) {
+	    	    String key = entry.getKey();
+	    	    SymbolTable s = entry.getValue();
+	    	    String val = "";
+	    	    if (s != null)
+	    	    	val = s.scope_name;
+	    	    System.out.println("Key: " + key);
+    	    	System.out.println("Value: " + ((s == null) ? "null" : val));
+	    	    System.out.println("------------------------");
+	    	}
 		}
 		
 		void printLocalScopes(){
@@ -39,7 +54,7 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 			System.out.println("*****************************");
 			System.out.println("Printing Local Scopes");
 			System.out.println("*****************************");
-			for (Map.Entry<SymbolTable, SymbolTable> entry : localScopes.entrySet()) {
+			for (Map.Entry<SymbolTable, SymbolTable> entry : Main.localScopes.entrySet()) {
 	    	    String key = entry.getKey().scope_name;
 	    	    SymbolTable s = entry.getValue();
 	    	    String val = "";
@@ -56,7 +71,7 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 			System.out.println("*****************************");
 			System.out.println("Printing Symbol Tables");
 			System.out.println("*****************************");
-			for (Map.Entry<SymbolTable, SymbolTable> entry : localScopes.entrySet()) {
+			for (Map.Entry<SymbolTable, SymbolTable> entry : Main.localScopes.entrySet()) {
 				SymbolTable key = entry.getKey();
 				key.printSymbolTable();
 	    	    
@@ -74,6 +89,7 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 		  n.f1.accept(this, argu);
 		  n.f2.accept(this, argu);
 		  
+		  printGlobalScopes();
 		  printLocalScopes();
 		  printAllSymbolTables();
 		  
@@ -138,7 +154,7 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
     		table = new SymbolTable();
 	    	table.scope_name = name;
 	    	
-	    	globalScope.put(name, table);
+	    	Main.globalScope.put(name, table);
 	    	
 	        n.f0.accept(this, argu);
 	        n.f1.accept(this, argu);
@@ -162,21 +178,23 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	    */
 	    public String visit(ClassExtendsDeclaration n, String argu) {
 	        
+	    	String name = n.f1.f0.toString();
+	    	String extended_name = n.f3.f0.toString();
+	    	
 	    	table = new SymbolTable();
-	    	table.scope_name = n.f1.f0.toString();
+	    	table.scope_name = name;
+	    	
+	    	Main.globalScope.put(name, table);
+	    	Main.localScopes.put(table, Main.globalScope.get(extended_name));
 	    	
 	        n.f0.accept(this, argu);
 	        n.f1.accept(this, argu);
 	        n.f2.accept(this, argu);
-	        String extended_class = n.f3.accept(this, argu);
+	        n.f3.accept(this, argu);
 	        n.f4.accept(this, argu);
 	        n.f5.accept(this, argu);
-	        n.f6.accept(this, argu);
+	        n.f6.accept(this, name);
 	        n.f7.accept(this, argu);
-	        
-	        if (!globalScope.containsKey(extended_class))
-	        	throw new RuntimeException("Trying to extend class that hasn't yet declared");
-	        
 	        
 	        return null;
 	    }
@@ -203,7 +221,7 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	       if (argu != null)
 		       if (argu.equals("method"))
 		    	   if (method_parameter_names.contains(var_name))
-		    		   throw new RuntimeException("Duplicate local varible " + var_name);	
+		    		   throw new RuntimeException("Duplicate local variable " + var_name);	
 	       
 	       SymbolType t = new SymbolType("variable", var_name, var_type);
 	       
@@ -239,6 +257,29 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	       String val = n.f4.accept(this, argu);
 	       if (val == null){
 	    	   System.out.println("no method parameters");
+	       }
+	       
+	       // check for same method from parent (inheritance case)
+	       if (argu != null){
+	    	   SymbolTable parent = Main.localScopes.get(Main.globalScope.get(argu));
+	    	   SymbolType parentType = parent.lookup(method_name, "method");
+	    	   
+	    	   // an vrika method ston patera me to idio onoma
+	    	   if (parentType != null){
+	    		   if (parentType.type.equals(method_type)){
+	    			   if (parentType.parameters.size() == method_parameter_types.size()){
+	    				   for (int i = 0; i < parentType.parameters.size(); i++){
+	    					   if (!parentType.parameters.get(i).equals(method_parameter_types.get(i)))
+	    						   throw new RuntimeException("Error at inheritance method");
+	    				   }
+	    			   }
+	    			   else throw new RuntimeException("Error at inheritance method");
+	    		   }
+	    		   else throw new RuntimeException("Error at inheritance method");
+	    	   }
+	    		  
+	    	   
+	    	   System.out.println(parent.scope_name);
 	       }
 	       
 	       SymbolType t = new SymbolType("method", method_name, method_type, method_parameter_types);	// create method type
@@ -300,7 +341,6 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	     * f0 -> ( FormalParameterTerm() )*
 	     */
 	    public String visit(FormalParameterTail n, String argu) {
-//	    	System.out.println("one time");
 	       return n.f0.accept(this, argu);
 	    }
 	    //////////////////////////////////////////////////////////////////////////
@@ -310,9 +350,7 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	     */
 	    public String visit(FormalParameterTerm n, String argu) {
 	       n.f0.accept(this, argu);
-//	       System.out.println("mesa dw");
 	       String parameter_type = n.f1.accept(this, argu);
-//	       System.out.println(parameter_type);
 	       return null;
 	    }
 	    //////////////////////////////////////////////////////////////////////////

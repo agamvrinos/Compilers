@@ -7,7 +7,7 @@ public class SymbolTable {
 	
 	public SymbolTable() {
 		sym_table = new HashMap<>();
-		SymbolTableVisitor.localScopes.put(this, null);	// o pateras tha dixnei se null
+		Main.localScopes.put(this, null);	// o pateras tha dixnei se null
 	}
 	
 	public SymbolTable(String scope_name) {
@@ -18,7 +18,7 @@ public class SymbolTable {
 	SymbolTable enterScope(String new_scope_name){
 		
 		SymbolTable new_table = new SymbolTable(new_scope_name);	// new kid symbol table
-		SymbolTableVisitor.localScopes.put(new_table, this);		// vazw to new table na dixnei ston patera
+		Main.localScopes.put(new_table, this);						// vazw to new table na dixnei ston patera
 		
 		return new_table;
 	}
@@ -48,29 +48,29 @@ public class SymbolTable {
 		return true;
 	}	
 	
-//	boolean lookup(String name){
-//		
-//		SymbolTable temp = this;
-//		
-//		while (temp != null){
-//			Set<SymbolType> syms = temp.sym_table.get(temp.scopeName);
-//			
-//			for (SymbolType type: syms){
-//				if (type.name.equals(name)){
-//					System.out.println("Found it in " + temp.scopeName + " scope");
-//					return true;
-//				}
-//			}
-//			System.out.println("DID NOT Found it in " + temp.scopeName + " scope");
-//			temp = temp.parent;
-//		}
-//		
-//		return false;
-//	}
-//	
+	SymbolType lookup(String name, String kind){
+		
+		SymbolTable temp = this;
+		
+		while (temp != null){
+			Set<SymbolType> syms = temp.sym_table.get(temp.scope_name);
+			
+			for (SymbolType type: syms){
+				if (type.name.equals(name) && type.kind.equals(kind)){
+					System.out.println("Found it in " + temp.scope_name + " scope");
+					return type;
+				}
+			}
+			System.out.println("DID NOT Found it in " + temp.scope_name + " scope");
+			temp = Main.localScopes.get(temp);
+		}
+		
+		return null;
+	}
+	
 	SymbolTable exitScope(){
 		// return the scope that the current scope points to
-		SymbolTable t = SymbolTableVisitor.localScopes.get(this);
+		SymbolTable t = Main.localScopes.get(this);
 		return t;
 	}
 	
