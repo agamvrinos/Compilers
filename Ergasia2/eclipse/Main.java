@@ -25,6 +25,9 @@ class Main {
 			//==================== PHASE 2======================
 			SymbolTableVisitor eval2 = new SymbolTableVisitor(class_names);	// pass phase1 results to 2nd visitor
 			root.accept(eval2, null);
+			//==================== PHASE 3======================
+			TypeCheckVisitor eval3 = new TypeCheckVisitor();
+			root.accept(eval3, null);
 			//==================================================
 			
 			System.out.println("=======================");
