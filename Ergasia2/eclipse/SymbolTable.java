@@ -26,7 +26,7 @@ public class SymbolTable {
 	boolean insert(SymbolType type){
 		if (sym_table.containsKey(scope_name)){				// uparxei to key
 			
-			Set<SymbolType> syms= sym_table.get(scope_name);
+			Set<SymbolType> syms = sym_table.get(scope_name);
 			
 			for (SymbolType t: syms){
 				if (t.name.equals(type.name) && t.kind.equals(type.kind)){
@@ -55,9 +55,12 @@ public class SymbolTable {
 		while (temp != null){
 			Set<SymbolType> syms = temp.sym_table.get(temp.scope_name);
 			
+			if (syms == null)
+				break;
+				
 			for (SymbolType type: syms){
 				if (type.name.equals(name) && type.kind.equals(kind)){
-					System.out.println("Found it in " + temp.scope_name + " scope");
+					System.out.println("Found " + name + " in " + temp.scope_name + " scope");
 					return type;
 				}
 			}
@@ -66,6 +69,31 @@ public class SymbolTable {
 		}
 		
 		return null;
+	}
+	
+	String typeCheck(String name, String kind){
+		System.out.println("GIVEN TYPE: " + name);
+		if (name != null){
+			if (name.equals("int") || name.equals("boolean") || name.equals("int[]")){
+				return name;
+			}
+			
+			else {
+				SymbolType res = this.lookup(name, kind);
+				if (res != null){
+					return res.type;
+				}
+				else {
+					if (Main.globalScope.containsKey(name)){
+						System.out.println("Vrika ton typo se global scope");
+						return name;
+					}
+					else
+						return null;
+				}
+			}
+		}
+		else return null;
 	}
 	
 	SymbolTable exitScope(){

@@ -5,37 +5,47 @@ class LinkedList{
 }
 
 class A {
-	int foo;
-	int b;
+	int a;
+	boolean b;
+	int[] c;
+	A d;
+	A d3;
+	B z;
 	
-	public int foo(int x, boolean y, int z){
-		int a;
-		int c;
+	public int foo(int x, boolean y, int zzz){
+		
+//		d = new A();
+//		d = d3;
+		d = (z);
+		d = new B();
+		
+		d.foo(x, y, zzz);
 		
 		return 2;
 	}
 	
-	public int foo2(){
-		return 2;
-	}
+	
 }
 
-class B {
+class B extends A{
 	int a;
 	
-	public int foo(int z){
-		return 2;
-	}
-}
-
-class C extends B {
-	int x;
-	
-	public int foo(int x){
+	public int foo2(int x){
+//		d = new A();
+		d = z;
 		return 2;
 	}
 	
 }
+//
+//class C extends B {
+//	int x;
+//	
+//	public int foo(int x){
+//		return 2;
+//	}
+//	s
+//}
 
 
 

@@ -19,9 +19,9 @@ import java.util.*;
 
 public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 		
-		
+		String current_class;
 		Set<String> class_names; 		// phase1 class names
-		Set<String> method_parameter_names;
+		List<String> method_parameter_names;
 		List<String> method_parameter_types;
 		SymbolTable table = null;
 		
@@ -29,8 +29,11 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 			this.class_names = class_names;
 			Main.globalScope = new HashMap<String, SymbolTable>();
 			Main.localScopes = new HashMap<SymbolTable, SymbolTable>();
-			method_parameter_names = new HashSet<String>();
+			Main.mapping = new HashMap<String, Map<String, SymbolTable>>();
+			method_parameter_names = new ArrayList<String>();
 			method_parameter_types = new ArrayList<String>();
+			
+			Main.globals = new HashMap<String, String>();
 		}
 		
 		void printGlobalScopes(){
@@ -78,6 +81,26 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	    	}
 		}
 		
+		void printMapping(){
+			System.out.println("*****************************");
+			System.out.println("Mapping");
+			System.out.println("*****************************");
+			for (Map.Entry<String, Map<String, SymbolTable>> entry : Main.mapping.entrySet()) {
+	    	    String key = entry.getKey();
+	    	    Map<String, SymbolTable> s = entry.getValue();
+	    	    
+	    	    System.out.println("ClassName: " + key);
+	    	    for (Map.Entry<String, SymbolTable> entry2 : s.entrySet()) {
+	    	    	String method_key = entry2.getKey();
+	    	    	SymbolTable method_st = entry2.getValue();
+	    	    	System.out.print("method: " + method_key + " method table: " + method_st.scope_name);
+	    	    	System.out.println();
+	    	    }
+	    	   
+	    	    System.out.println("------------------------");
+	    	}
+		}
+		
 		/**
 	    * f0 -> MainClass()
 	    * f1 -> ( TypeDeclaration() )*
@@ -89,9 +112,10 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 		  n.f1.accept(this, argu);
 		  n.f2.accept(this, argu);
 		  
-		  printGlobalScopes();
+//		  printGlobalScopes();
 		  printLocalScopes();
 		  printAllSymbolTables();
+//		  printMapping();
 		  
 		  return null;
 		}
@@ -118,7 +142,18 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	    */
 	    public String visit(MainClass n, String argu) {
 			  
-			n.f0.accept(this, argu);
+	    	n.f0.accept(this, argu);
+	    	
+	    	String name = n.f1.f0.toString();
+    		table = new SymbolTable();
+	    	table.scope_name = name;
+	    	
+	    	Main.globalScope.put(name, table);
+	    	Main.mapping.put(name, new HashMap<String, SymbolTable>());	// "classname" -> null
+	    	Main.mapping.get(name).put("main", table);
+	    	
+	    	Main.globals.put(name, null);
+	    	
 			n.f1.accept(this, argu);
 			n.f2.accept(this, argu);
 			n.f3.accept(this, argu);
@@ -155,6 +190,9 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	    	table.scope_name = name;
 	    	
 	    	Main.globalScope.put(name, table);
+	    	Main.mapping.put(name, new HashMap<String, SymbolTable>());	// "classname" -> null
+	    	
+	    	current_class = name;
 	    	
 	        n.f0.accept(this, argu);
 	        n.f1.accept(this, argu);
@@ -180,12 +218,14 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	        
 	    	String name = n.f1.f0.toString();
 	    	String extended_name = n.f3.f0.toString();
+	    	current_class = name;
 	    	
 	    	table = new SymbolTable();
 	    	table.scope_name = name;
 	    	
 	    	Main.globalScope.put(name, table);
 	    	Main.localScopes.put(table, Main.globalScope.get(extended_name));
+	    	Main.mapping.put(name, new HashMap<String, SymbolTable>());	// "classname" -> null
 	    	
 	        n.f0.accept(this, argu);
 	        n.f1.accept(this, argu);
@@ -248,16 +288,17 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	     * f12 -> "}"
 	     */
 	    
-	    // TODO: enter new scope for the method
 	    public String visit(MethodDeclaration n, String argu) {
 	       n.f0.accept(this, argu);
 	       String method_type = n.f1.accept(this, argu);
 	       String method_name = n.f2.accept(this, argu);
 	       n.f3.accept(this, argu);
 	       String val = n.f4.accept(this, argu);
+	       
 	       if (val == null){
 	    	   System.out.println("no method parameters");
 	       }
+	       
 	       
 	       // check for same method from parent (inheritance case)
 	       if (argu != null){
@@ -288,6 +329,13 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	    	   throw new RuntimeException("Method Redeclaration Error");	// same method name case
 	       
 	       table = table.enterScope(method_name);	
+	       
+	       // create "method_name" -> methodST mapping
+	       Main.mapping.get(current_class).put(method_name, table);
+	       
+	       for (int i = 0; i < method_parameter_names.size(); i++){
+	    	   table.insert(new SymbolType("variable", method_parameter_names.get(i), method_parameter_types.get(i)));
+	       }
 	       
 	       n.f5.accept(this, argu);
 	       n.f6.accept(this, argu);

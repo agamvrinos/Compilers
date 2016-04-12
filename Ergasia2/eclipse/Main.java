@@ -8,6 +8,8 @@ class Main {
 	
 	public static Map<String, SymbolTable> globalScope;
 	public static Map<SymbolTable, SymbolTable> localScopes;
+	public static Map<String, Map<String,SymbolTable>> mapping;
+	public static Map<String, String> globals;
 	
 	public static void main (String [] args){
 
