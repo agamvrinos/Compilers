@@ -50,6 +50,11 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String>{
 		
 		String current_class;
 		String current_method;
+		List<String> parameters_check;
+		
+		public TypeCheckVisitor() {
+			parameters_check = new ArrayList<>();
+		}
 		
 		void printGlobalScopes(){
 			System.out.println("*****************************");
@@ -237,7 +242,7 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String>{
 		   public String visit(MethodDeclaration n, String argu) {
 		      String _ret=null;
 		      n.f0.accept(this, argu);
-		      n.f1.accept(this, argu);
+		      String methodType = n.f1.accept(this, argu);	// className, int, int[], boolean
 		      String methodName = n.f2.accept(this, argu);
 		      current_method = methodName;
 		      n.f3.accept(this, argu);
@@ -247,9 +252,11 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String>{
 		      n.f7.accept(this, argu);
 		      n.f8.accept(this, argu);
 		      n.f9.accept(this, argu);
-		      n.f10.accept(this, argu);
+		      String return_type = n.f10.accept(this, argu);
 		      n.f11.accept(this, argu);
 		      n.f12.accept(this, argu);
+		      
+		      
 		      return _ret;
 		   }
 
@@ -309,34 +316,35 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String>{
 		    * f2 -> "]"
 		    */
 		   public String visit(ArrayType n, String argu) {
-		      String _ret=null;
 		      n.f0.accept(this, argu);
 		      n.f1.accept(this, argu);
 		      n.f2.accept(this, argu);
-		      return _ret;
+		      return "int[]";
 		   }
 
 		   /**
 		    * f0 -> "boolean"
 		    */
 		   public String visit(BooleanType n, String argu) {
-		      return n.f0.accept(this, argu);
+		      n.f0.accept(this, argu);
+		      return "boolean";
 		   }
 
 		   /**
 		    * f0 -> "int"
 		    */
 		   public String visit(IntegerType n, String argu) {
-		      return n.f0.accept(this, argu);
+		      n.f0.accept(this, argu);
+		      return "int";
 		   }
 
 		   /**
 		    * f0 -> Block()
-		    *       | AssignmentStatement()
+		    *       | AssignmentStatement()	//DONE
 		    *       | ArrayAssignmentStatement()
-		    *       | IfStatement()
-		    *       | WhileStatement()
-		    *       | PrintStatement()
+		    *       | IfStatement()			//DONE
+		    *       | WhileStatement()		//DONE
+		    *       | PrintStatement()		//DONE
 		    */
 		   public String visit(Statement n, String argu) {
 		      return n.f0.accept(this, argu);
@@ -376,16 +384,30 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String>{
 		      if (rtype == null)
 		    	  throw new RuntimeException("Error at expr after = ");
 		      
-		      if (!ltype.equals(rtype)){
+//		      if (!ltype.equals(rtype)){	// an den einai isa check gia subtype
+//		    	  SymbolTable mother = Main.localScopes.get(Main.globalScope.get(rtype));
+//		    	  if (mother != null){
+//		    		  if (!mother.scope_name.equals(ltype))
+//		    			  throw new RuntimeException("Before and after = types must be the same");
+//		    	  }
+//		    	  else
+//		    		  throw new RuntimeException("Type mismatch: cannot convert from " + rtype + " to " + ltype);
+//		      }
+		      
+		      boolean found = false;
+		      if (!ltype.equals(rtype)){	// an den einai isa check gia subtype
 		    	  SymbolTable mother = Main.localScopes.get(Main.globalScope.get(rtype));
-		    	  if (mother != null){
-		    		  if (!mother.scope_name.equals(ltype))
-		    			  throw new RuntimeException("Before and after = types must be the same");
+		    	  while (mother != null){	// oso den exw ftasei mexri terma panw
+		    		  if (mother.scope_name.equals(ltype)){
+		    			  found = true;
+		    			  break;
+		    		  }
+		    		  else
+		    			  mother = Main.localScopes.get(Main.globalScope.get(mother.scope_name));
 		    	  }
-		    	  else
+		    	  if (!found)
 		    		  throw new RuntimeException("Type mismatch: cannot convert from " + rtype + " to " + ltype);
 		      }
-		    	  
 		      
 		      
 		      
@@ -402,7 +424,6 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String>{
 		    * f6 -> ";"
 		    */
 		   public String visit(ArrayAssignmentStatement n, String argu) {
-		      String _ret=null;
 		      n.f0.accept(this, argu);
 		      n.f1.accept(this, argu);
 		      n.f2.accept(this, argu);
@@ -410,7 +431,7 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String>{
 		      n.f4.accept(this, argu);
 		      n.f5.accept(this, argu);
 		      n.f6.accept(this, argu);
-		      return _ret;
+		      return null;
 		   }
 
 		   /**
@@ -423,15 +444,25 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String>{
 		    * f6 -> Statement()
 		    */
 		   public String visit(IfStatement n, String argu) {
-		      String _ret=null;
 		      n.f0.accept(this, argu);
 		      n.f1.accept(this, argu);
-		      n.f2.accept(this, argu);
+		      String expr = n.f2.accept(this, argu);
 		      n.f3.accept(this, argu);
 		      n.f4.accept(this, argu);
 		      n.f5.accept(this, argu);
 		      n.f6.accept(this, argu);
-		      return _ret;
+		      
+		      String expr_type = Main.mapping.get(current_class).get(current_method).typeCheck(expr, "variable");
+		      
+		      if (expr_type != null){
+			      if (!expr_type.equals("boolean") ){
+			    	  throw new RuntimeException("Condition of if statement must be of type boolean");
+			      }
+		      }
+		      else 
+		    	  throw new RuntimeException("Type at condition of if statement does not exist");
+		      
+		      return null;
 		   }
 
 		   /**
@@ -442,13 +473,23 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String>{
 		    * f4 -> Statement()
 		    */
 		   public String visit(WhileStatement n, String argu) {
-		      String _ret=null;
 		      n.f0.accept(this, argu);
 		      n.f1.accept(this, argu);
-		      n.f2.accept(this, argu);
+		      String expr = n.f2.accept(this, argu);
 		      n.f3.accept(this, argu);
 		      n.f4.accept(this, argu);
-		      return _ret;
+		      
+		      String expr_type = Main.mapping.get(current_class).get(current_method).typeCheck(expr, "variable");
+		      
+		      if (expr_type != null){
+			      if (!expr_type.equals("boolean") ){
+			    	  throw new RuntimeException("Condition of while statement must be of type boolean");
+			      }
+		      }
+		      else 
+		    	  throw new RuntimeException("Type at condition of while statement does not exist");
+		      
+		      return null;
 		   }
 
 		   /**
@@ -465,15 +506,12 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String>{
 		      n.f3.accept(this, argu);
 		      n.f4.accept(this, argu);
 		      
-		      System.out.println(value);
-		      System.out.println(current_class);
-		      System.out.println(current_method);
 		      String ltype = Main.mapping.get(current_class).get(current_method).typeCheck(value, "variable");
 		      
-		      if (ltype != null)
+		      if (ltype != null){
 			      if (!ltype.equals("int"))
 			    	  throw new RuntimeException("Print statement accepts only int types");
-			      else System.out.println("OLA GOOD");
+		      }
 		      else
 		    	  throw new RuntimeException("Error: Type does not exist!");
 		      
@@ -488,7 +526,7 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String>{
 		    *       | TimesExpression()		// DONE
 		    *       | ArrayLookup()			// DONE
 		    *       | ArrayLength()			// DONE
-		    *       | MessageSend()
+		    *       | MessageSend()			// DONE
 		    *       | Clause()				// DONE
 		    */
 		   public String visit(Expression n, String argu) {
@@ -683,14 +721,51 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String>{
 		    * f5 -> ")"
 		    */
 		   public String visit(MessageSend n, String argu) {
-		      String _ret=null;
-		      n.f0.accept(this, argu);
+			  //TODO: to f0 prepei na einai "this" h identifier tupou klassis
+			  //TODO: to f3 prepei na einai onoma sunartisis i opoia uparxei ston current typo klasis i ston patera
+			  //TODO: oi tupoi tou f4 prepei na einai idioi me tous tupous pou exei oristei i sunartisi
+		      String beforeStop = n.f0.accept(this, argu);
 		      n.f1.accept(this, argu);
-		      n.f2.accept(this, argu);
+		      String methodName = n.f2.accept(this, argu);
 		      n.f3.accept(this, argu);
 		      n.f4.accept(this, argu);
 		      n.f5.accept(this, argu);
-		      return _ret;
+		      
+		      if (beforeStop.equals("int") || beforeStop.equals("int[]") || beforeStop.equals("boolean"))
+		    	  throw new RuntimeException("The left-hand side of an assignment must be a variable");
+		      
+		      String class_type = Main.mapping.get(current_class).get(current_method).typeCheck(beforeStop, "variable");
+		      SymbolType mtype = null;
+		      
+		      if (class_type == null)
+		    	  throw new RuntimeException("Type cannot be resolved");
+		      else {
+		    	  
+		    	  if (class_type.equals("this")){
+		    		  mtype = (Main.globalScope.get(current_class)).lookup(methodName, "method");
+		    	  }
+		    	  else {	// id case
+		    		  mtype = (Main.globalScope.get(class_type)).lookup(methodName, "method");
+		    	  }
+		    	  if (mtype == null){
+		    		  throw new RuntimeException("The method " + methodName +  " is undefined for the type " + class_type );
+		    	  }
+		    	  else {	// prepei na koitaksw an ta orismata subiptoun
+		    		  if (mtype.parameters.size() != parameters_check.size()){
+		    			  throw new RuntimeException("Wrong number of parameters at method call: " + methodName);
+		    		  }
+		    		  else {	// equal size -> need to check for same types
+		    			  for (int i = 0; i < mtype.parameters.size(); i++){
+		    				  if (mtype.parameters.get(i) != parameters_check.get(i)){
+		    					  throw new RuntimeException("Wrong parameter type at method call: " + methodName);
+		    				  }
+		    			  }
+		    		  }
+		    	  }
+		      }
+		      
+		      parameters_check.clear();		// clear array for next method call
+		      return mtype.type;
 		   }
 
 		   /**
@@ -698,10 +773,20 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String>{
 		    * f1 -> ExpressionTail()
 		    */
 		   public String visit(ExpressionList n, String argu) {
-		      String _ret=null;
-		      n.f0.accept(this, argu);
+		      String par1 = n.f0.accept(this, argu);
+		      
+		      String par1type = Main.mapping.get(current_class).get(current_method).typeCheck(par1, "variable");
+		      if (par1type != null)
+		    	  parameters_check.add(par1type);
+		      else 
+		    	  throw new RuntimeException(par1 + " cannot be resolved to a variable");
+		      
 		      n.f1.accept(this, argu);
-		      return _ret;
+		      
+		      for (String i : parameters_check){
+		    	  System.out.println(i + " lol");
+		      }
+	    	  return null;
 		   }
 
 		   /**
@@ -716,10 +801,16 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String>{
 		    * f1 -> Expression()
 		    */
 		   public String visit(ExpressionTerm n, String argu) {
-		      String _ret=null;
 		      n.f0.accept(this, argu);
-		      n.f1.accept(this, argu);
-		      return _ret;
+		      String parameter_type = n.f1.accept(this, argu);
+		      
+		      String partype = Main.mapping.get(current_class).get(current_method).typeCheck(parameter_type, "variable");
+		      if (partype != null)
+		    	  parameters_check.add(partype);
+		      else
+		    	  throw new RuntimeException(parameter_type + " cannot be resolved to a variable");
+		      
+		      return null;
 		   }
 
 		   /**
@@ -823,12 +914,11 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String>{
 		      n.f2.accept(this, argu);
 		      n.f3.accept(this, argu);
 		      
-		      String ltype = Main.mapping.get(current_class).get(current_method).typeCheck(lvalue, "variable");
+//		      String ltype = Main.mapping.get(current_class).get(current_method).typeCheck(lvalue, "variable");
+		      if (!Main.globalScope.containsKey(lvalue))
+		    		  throw new RuntimeException("Error at new ID() expression: ID does not exist");
 		      
-		      if (ltype == null)
-		    	  throw new RuntimeException("Error at new ID() expression: ID does not exist");
-		      
-		      return ltype;
+		      return lvalue + ",className";
 		   }
 
 		   /**

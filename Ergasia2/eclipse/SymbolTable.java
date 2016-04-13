@@ -55,8 +55,11 @@ public class SymbolTable {
 		while (temp != null){
 			Set<SymbolType> syms = temp.sym_table.get(temp.scope_name);
 			
-			if (syms == null)
-				break;
+			if (syms == null){
+//				System.out.println("EDW");
+				temp = Main.localScopes.get(temp);
+				continue;
+			}
 				
 			for (SymbolType type: syms){
 				if (type.name.equals(name) && type.kind.equals(kind)){
@@ -64,7 +67,7 @@ public class SymbolTable {
 					return type;
 				}
 			}
-			System.out.println("DID NOT Found it in " + temp.scope_name + " scope");
+			System.out.println("DID NOT Found " + name + " in " + temp.scope_name + " scope");
 			temp = Main.localScopes.get(temp);
 		}
 		
@@ -72,13 +75,20 @@ public class SymbolTable {
 	}
 	
 	String typeCheck(String name, String kind){
-		System.out.println("GIVEN TYPE: " + name);
+//		System.out.println("==================================================");
+//		System.out.println("GIVEN TYPE: " + name + "| GIVEN KIND: " + kind);
+//		System.out.println("==================================================");
 		if (name != null){
-			if (name.equals("int") || name.equals("boolean") || name.equals("int[]")){
+			if (name.equals("int") || name.equals("boolean") || name.equals("int[]") || name.equals("this")){
 				return name;
 			}
 			
 			else {
+				if (name.contains(",className")){
+					String [] classname = name.split(",");
+					String classID = classname[0];
+					return classID;
+				}
 				SymbolType res = this.lookup(name, kind);
 				if (res != null){
 					return res.type;

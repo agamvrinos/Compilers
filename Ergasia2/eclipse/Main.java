@@ -32,10 +32,10 @@ class Main {
 			root.accept(eval3, null);
 			//==================================================
 			
-			System.out.println("=======================");
-			for (String s: class_names){
-				System.out.println(s);
-			}
+//			System.out.println("=======================");
+//			for (String s: class_names){
+//				System.out.println(s);
+//			}
 		}
 		catch(ParseException ex){
 

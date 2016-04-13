@@ -112,10 +112,10 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 		  n.f1.accept(this, argu);
 		  n.f2.accept(this, argu);
 		  
-//		  printGlobalScopes();
+		  printGlobalScopes();
 		  printLocalScopes();
 		  printAllSymbolTables();
-//		  printMapping();
+		  printMapping();
 		  
 		  return null;
 		}
@@ -214,6 +214,7 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	     * f6 -> ( MethodDeclaration() )*
 	     * f7 -> "}"
 	    */
+	    
 	    public String visit(ClassExtendsDeclaration n, String argu) {
 	        
 	    	String name = n.f1.f0.toString();
