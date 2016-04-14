@@ -63,11 +63,11 @@ public class SymbolTable {
 				
 			for (SymbolType type: syms){
 				if (type.name.equals(name) && type.kind.equals(kind)){
-					System.out.println("Found " + name + " in " + temp.scope_name + " scope");
+//					System.out.println("Found " + name + " in " + temp.scope_name + " scope");
 					return type;
 				}
 			}
-			System.out.println("DID NOT Found " + name + " in " + temp.scope_name + " scope");
+//			System.out.println("DID NOT Found " + name + " in " + temp.scope_name + " scope");
 			temp = Main.localScopes.get(temp);
 		}
 		
@@ -95,7 +95,7 @@ public class SymbolTable {
 				}
 				else {
 					if (Main.globalScope.containsKey(name)){
-						System.out.println("Vrika ton typo se global scope");
+//						System.out.println("Vrika ton typo se global scope");
 						return name;
 					}
 					else

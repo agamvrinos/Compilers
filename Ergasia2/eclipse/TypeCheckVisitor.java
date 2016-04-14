@@ -46,7 +46,7 @@ import syntaxtree.WhileStatement;
 import visitor.GJDepthFirst;
 import java.util.*;
 
-public class TypeCheckVisitor extends GJDepthFirst<String, String>{
+public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		
 		String current_class;
 		String current_method;
@@ -256,7 +256,46 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String>{
 		      n.f11.accept(this, argu);
 		      n.f12.accept(this, argu);
 		      
+		      String mtype = Main.mapping.get(current_class).get(current_method).typeCheck(methodType, "variable");
+		      String rtype = Main.mapping.get(current_class).get(current_method).typeCheck(return_type, "variable");
 		      
+		      if (mtype == null || rtype == null)
+		    	  throw new RuntimeException("no such type");
+		      
+		      if (rtype.equals("this")){	// an kanei return this
+		    	  rtype = current_class;
+		      }
+		      
+		      boolean found = false;
+		      if (!mtype.equals(rtype)){
+		    	  SymbolTable mother = Main.localScopes.get(Main.globalScope.get(rtype));
+		    	  while (mother != null){	// oso den exw ftasei mexri terma panw
+		    		  if (mother.scope_name.equals(mtype)){
+		    			  found = true;
+		    			  break;
+		    		  }
+		    		  else
+		    			  mother = Main.localScopes.get(Main.globalScope.get(mother.scope_name));
+		    	  }
+		    	  if (!found)
+		    		  throw new RuntimeException("Type mismatch: cannot convert from " + rtype + " to " + mtype);
+		      }
+		      
+		      
+//		      boolean found = false;
+//		      if (!ltype.equals(rtype)){	// an den einai isa check gia subtype
+//		    	  SymbolTable mother = Main.localScopes.get(Main.globalScope.get(rtype));
+//		    	  while (mother != null){	// oso den exw ftasei mexri terma panw
+//		    		  if (mother.scope_name.equals(ltype)){
+//		    			  found = true;
+//		    			  break;
+//		    		  }
+//		    		  else
+//		    			  mother = Main.localScopes.get(Main.globalScope.get(mother.scope_name));
+//		    	  }
+//		    	  if (!found)
+//		    		  throw new RuntimeException("Type mismatch: cannot convert from " + rtype + " to " + ltype);
+//		      }
 		      return _ret;
 		   }
 
@@ -393,6 +432,9 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String>{
 //		    	  else
 //		    		  throw new RuntimeException("Type mismatch: cannot convert from " + rtype + " to " + ltype);
 //		      }
+		      if (rtype.equals("this")){
+		    	  rtype = current_class;
+		      }
 		      
 		      boolean found = false;
 		      if (!ltype.equals(rtype)){	// an den einai isa check gia subtype
@@ -424,13 +466,43 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String>{
 		    * f6 -> ";"
 		    */
 		   public String visit(ArrayAssignmentStatement n, String argu) {
-		      n.f0.accept(this, argu);
+			  //CHECK1: an uparxei tetoio identifier typou int[]
+			  //CHECK2: an to eswteriko toy arr einai typou int
+			  //CHECK3: check left and right types
+		      String arr = n.f0.accept(this, argu);
 		      n.f1.accept(this, argu);
-		      n.f2.accept(this, argu);
+		      String arrIndex = n.f2.accept(this, argu);
 		      n.f3.accept(this, argu);
 		      n.f4.accept(this, argu);
-		      n.f5.accept(this, argu);
+		      String rvalue = n.f5.accept(this, argu);
 		      n.f6.accept(this, argu);
+		      
+		      String arrtype = Main.mapping.get(current_class).get(current_method).typeCheck(arr, "variable");
+		      String arrIndexType = Main.mapping.get(current_class).get(current_method).typeCheck(arrIndex, "variable");
+		      String rtype = Main.mapping.get(current_class).get(current_method).typeCheck(rvalue, "variable");
+		    		  
+		      if (arrtype == null){
+		    	  throw new RuntimeException(arr + " cannot be resolved to a variable");
+		      }
+		      else {
+		    	  if (!arrtype.equals("int[]")){
+		    		  throw new RuntimeException("The type of the expression must be an array type but it resolved to " + arrtype);
+		    	  }
+		    	  else {	// einai int array tha koitaksw to index
+		    		  if (arrIndexType == null){
+		    			  throw new RuntimeException(arrIndex + " cannot be resolved to a variable");
+		    		  }
+		    		  else {
+		    			  if (!arrIndexType.equals("int"))
+		    				  throw new RuntimeException("Type mismatch: cannot convert from " + arrIndexType + " to int");
+		    			  else{	// checkarw meta to =
+		    				  if (!rtype.equals("int"))
+		    					  throw new RuntimeException("Assignment to array must be of type int");
+		    			  }
+		    		  }
+		    	  }
+		      }
+		      
 		      return null;
 		   }
 
@@ -756,13 +828,46 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String>{
 		    		  }
 		    		  else {	// equal size -> need to check for same types
 		    			  for (int i = 0; i < mtype.parameters.size(); i++){
-		    				  if (mtype.parameters.get(i) != parameters_check.get(i)){
-		    					  throw new RuntimeException("Wrong parameter type at method call: " + methodName);
+		    				  String call_parameter_type = parameters_check.get(i);
+		    				  String decl_parameter_type = mtype.parameters.get(i);
+		    				  
+		    				  if (call_parameter_type.equals("this")){		// an einai this to parameter
+		    					  call_parameter_type = current_class;		// o tupos einai i trexousa klasi
+		    				  }
+		    				  boolean found = false;
+		    				  if (!decl_parameter_type.equals(call_parameter_type)){
+		    					  SymbolTable mother = Main.localScopes.get(Main.globalScope.get(call_parameter_type));
+		    					  while (mother != null){	// oso den exw ftasei mexri terma panw
+		    			    		  if (mother.scope_name.equals(decl_parameter_type)){
+		    			    			  found = true;
+		    			    			  break;
+		    			    		  }
+		    			    		  else
+		    			    			  mother = Main.localScopes.get(Main.globalScope.get(mother.scope_name));
+		    			    	  }
+		    					  if (!found)
+		    			    		  throw new RuntimeException("Wrong parameter type at method call: " + methodName);
+//		    					  
 		    				  }
 		    			  }
 		    		  }
 		    	  }
 		      }
+		      
+//		      boolean found = false;
+//		      if (!ltype.equals(rtype)){	// an den einai isa check gia subtype
+//		    	  SymbolTable mother = Main.localScopes.get(Main.globalScope.get(rtype));
+//		    	  while (mother != null){	// oso den exw ftasei mexri terma panw
+//		    		  if (mother.scope_name.equals(ltype)){
+//		    			  found = true;
+//		    			  break;
+//		    		  }
+//		    		  else
+//		    			  mother = Main.localScopes.get(Main.globalScope.get(mother.scope_name));
+//		    	  }
+//		    	  if (!found)
+//		    		  throw new RuntimeException("Type mismatch: cannot convert from " + rtype + " to " + ltype);
+//		      }
 		      
 		      parameters_check.clear();		// clear array for next method call
 		      return mtype.type;
@@ -783,9 +888,9 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String>{
 		      
 		      n.f1.accept(this, argu);
 		      
-		      for (String i : parameters_check){
-		    	  System.out.println(i + " lol");
-		      }
+//		      for (String i : parameters_check){
+//		    	  System.out.println(i + " lol");
+//		      }
 	    	  return null;
 		   }
 

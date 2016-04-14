@@ -6,40 +6,39 @@ class LinkedList{
 
 class A {
 	int aa;
+	int [] p;
+	A a;
+	A b;
+	B dd;
 	
 	//======================================
-	public int foo(boolean x){
-		return 2;
-	}
+//	public int foo(boolean x){
+//		p[2] = 2;
+//		dd = this;
+//		return 2;
+//	}
 	//======================================
 	
 	//======================================
 	
 }
-class C {
+class A {
 	
 }
 
 class B extends A{
-	
+	A zzzz;
 	int b;
 	int q;
 	//======================================
-	public int foo(boolean x){
-		if (zzzz){
-//			System.out.println(2);
-		}
-		else {
-//			System.out.println(2);
-//			System.out.println(2);
-//			System.out.println(2);
-//			System.out.println(2);
-		}
-		
-		return 2;
+	public A foo(B x){
+		B bb;
+		return new B();
 	}
 	
-	public boolean foo2(){
+	public boolean foo2(int zzz){
+		boolean q;
+		zzzz = this.foo(this);
 		return true;
 	}
 	//======================================

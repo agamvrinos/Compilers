@@ -112,10 +112,10 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 		  n.f1.accept(this, argu);
 		  n.f2.accept(this, argu);
 		  
-		  printGlobalScopes();
-		  printLocalScopes();
-		  printAllSymbolTables();
-		  printMapping();
+//		  printGlobalScopes();
+//		  printLocalScopes();
+//		  printAllSymbolTables();
+//		  printMapping();
 		  
 		  return null;
 		}
@@ -296,9 +296,9 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	       n.f3.accept(this, argu);
 	       String val = n.f4.accept(this, argu);
 	       
-	       if (val == null){
-	    	   System.out.println("no method parameters");
-	       }
+//	       if (val == null){
+//	    	   System.out.println("no method parameters");
+//	       }
 	       
 	       
 	       // check for same method from parent (inheritance case)

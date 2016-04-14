@@ -14,10 +14,12 @@ class Main {
 	public static void main (String [] args){
 
 		FileInputStream fis = null;
+		for (int i = 0; i < args.length; i ++){
 		try{
-			fis = new FileInputStream("LinkedList.java");
+//			fis = new FileInputStream("LinkedList.java");
+			fis = new FileInputStream(args[i]);
 			MiniJavaParser parser = new MiniJavaParser(fis);
-			System.err.println("Program parsed successfully.");
+//			System.err.println("Program parsed successfully.");
 			
 			Goal root = parser.Goal();
 			
@@ -32,6 +34,7 @@ class Main {
 			root.accept(eval3, null);
 			//==================================================
 			
+			System.err.println("Program " + args[i] + " TypeChecked successfully.");
 //			System.out.println("=======================");
 //			for (String s: class_names){
 //				System.out.println(s);
@@ -44,6 +47,14 @@ class Main {
 		catch(FileNotFoundException ex){
 			System.err.println(ex.getMessage());
 		}
+		catch(RuntimeException ex){
+//			System.err.println(ex.getMessage());
+			System.out.println("=============================================================");
+			System.out.println("ERROR AT PROGRAM: " + args[i]);
+			System.out.println("ERROR MESSAGE: " + ex.getMessage());
+			System.out.println("=============================================================");
+			continue;
+		}
 		finally{
 			try{
 				if(fis != null) fis.close();
@@ -52,5 +63,6 @@ class Main {
 				System.err.println(ex.getMessage());
 			}
 		}
+	}
 	}
 }
