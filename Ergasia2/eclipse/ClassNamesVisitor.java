@@ -11,6 +11,7 @@ public class ClassNamesVisitor extends GJDepthFirst<Set<String>, Integer>{
 	public ClassNamesVisitor() {
 		class_names = new HashSet<>();
 	}
+	
 	/**
     * f0 -> MainClass()
     * f1 -> ( TypeDeclaration() )*
@@ -24,6 +25,7 @@ public class ClassNamesVisitor extends GJDepthFirst<Set<String>, Integer>{
 	  
 	  return class_names;
 	}
+	
 	/**
     * f0 -> "class"
     * f1 -> Identifier()
@@ -84,11 +86,7 @@ public class ClassNamesVisitor extends GJDepthFirst<Set<String>, Integer>{
     	String class_name = n.f1.f0.toString();
     	
     	if (class_names.contains(class_name))
-			try {
-				throw new RuntimeException(LineNumberInfo.get(n) + ": Type " + class_name + " already defined");
-			} catch (RuntimeException e) {
-				System.out.println(e.getMessage());
-			}
+    		throw new RuntimeException(LineNumberInfo.get(n) + ": Type " + class_name + " already defined");
     	
     	class_names.add(class_name);	// add class name to HashSet
         
@@ -118,18 +116,11 @@ public class ClassNamesVisitor extends GJDepthFirst<Set<String>, Integer>{
     	String extended_class = n.f3.f0.toString();
     	
     	if (class_names.contains(name))
-			try {
-				throw new RuntimeException(LineNumberInfo.get(n) + ": Type " + name + " already defined");
-			} catch (RuntimeException e1) {
-				System.out.println(e1.getMessage());
-			}
+			throw new RuntimeException(LineNumberInfo.get(n) + ": Type " + name + " already defined");
     	
     	if (!class_names.contains(extended_class))
-			try {
-				throw new RuntimeException(LineNumberInfo.get(n) + ": Inheritance Error");
-			} catch (RuntimeException e) {
-				System.out.println(e.getMessage());
-			}
+			throw new RuntimeException(LineNumberInfo.get(n) + ": Inheritance Error");
+			
     	
     	class_names.add(name);	// add class name to HashSet
         

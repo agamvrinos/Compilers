@@ -5,12 +5,12 @@ class LinkedList{
 }
 
 class A {
-	
+	public int A(){
+		return 2;
+	}
 }
 
-class A extends C{
 
-}
 
 
 

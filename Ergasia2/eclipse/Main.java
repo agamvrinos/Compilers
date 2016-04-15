@@ -15,9 +15,9 @@ class Main {
 		for (int i = 0; i < args.length; i ++){
 		try{
 			
-			System.out.println("=============================================================");
+			System.out.println("==============================================");
 			System.out.println("Program Name: " + args[i]);
-			System.out.println("=============================================================");
+			System.out.println("==============================================");
 			fis = new FileInputStream(args[i]);
 			MiniJavaParser parser = new MiniJavaParser(fis);
 			
@@ -34,7 +34,7 @@ class Main {
 			root.accept(eval3, null);
 			//==================================================
 			
-//			System.err.println("Program " + args[i] + " TypeChecked successfully.");
+			System.err.println("No errors");
 
 		}
 		catch(ParseException ex){
@@ -45,10 +45,9 @@ class Main {
 			System.err.println(ex.getMessage());
 		}
 		catch(RuntimeException ex){
-			System.out.println("=============================================================");
-			System.out.println("ERROR AT PROGRAM: " + args[i]);
+			System.out.println("-----------------------------------------------------------------------------");
 			System.out.println(ex.getMessage());
-			System.out.println("=============================================================");
+			System.out.println("-----------------------------------------------------------------------------");
 			continue;
 		}
 		finally{
