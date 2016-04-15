@@ -12,7 +12,6 @@ import syntaxtree.IntegerType;
 import syntaxtree.MainClass;
 import syntaxtree.MethodDeclaration;
 import syntaxtree.Type;
-import syntaxtree.TypeDeclaration;
 import syntaxtree.VarDeclaration;
 import visitor.GJDepthFirst;
 import java.util.*;
@@ -33,7 +32,6 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 			method_parameter_names = new ArrayList<String>();
 			method_parameter_types = new ArrayList<String>();
 			
-			Main.globals = new HashMap<String, String>();
 		}
 		
 		void printGlobalScopes(){
@@ -119,7 +117,7 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 		  
 		  return null;
 		}
-		
+		//===============================================================================
 		/**
 	    * f0 -> "class"
 	    * f1 -> Identifier()
@@ -152,8 +150,6 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	    	Main.mapping.put(name, new HashMap<String, SymbolTable>());	// "classname" -> null
 	    	Main.mapping.get(name).put("main", table);
 	    	
-	    	Main.globals.put(name, null);
-	    	
 			n.f1.accept(this, argu);
 			n.f2.accept(this, argu);
 			n.f3.accept(this, argu);
@@ -174,7 +170,7 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 			  
 			return null;
 	    }
-		   
+	    //===============================================================================  
 		/**
 	    * f0 -> "class"
 	    * f1 -> Identifier()
@@ -203,7 +199,7 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	        
 	        return null;
 	    }
-	    
+	    //===============================================================================
 	    /**
 	     * f0 -> "class"
 	     * f1 -> Identifier()
@@ -239,7 +235,7 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	        
 	        return null;
 	    }
-	    
+	    //===============================================================================
 	    /**
 	     * f0 -> Type()
 	     * f1 -> Identifier()
@@ -256,23 +252,23 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	    	// then check for possible forward declaration
 	    	   if (!class_names.contains(var_type))				
 	    		   // no forward declaration
-	    		   throw new RuntimeException(var_type + " cannot be resolved to a type");	
+	    		   throw new RuntimeException(LineNumberInfo.get(n) + ": " + var_type + " cannot be resolved to a type");	
 	       }
 	       
 	       if (argu != null)
 		       if (argu.equals("method"))
 		    	   if (method_parameter_names.contains(var_name))
-		    		   throw new RuntimeException("Duplicate local variable " + var_name);	
+		    		   throw new RuntimeException(LineNumberInfo.get(n) + ": Duplicate local variable " + var_name);	
 	       
 	       SymbolType t = new SymbolType("variable", var_name, var_type);
 	       
 	       
 	       if (!table.insert(t))
-	    	   throw new RuntimeException("Variable Redeclaration Error");	// same type name case
+	    	   throw new RuntimeException(LineNumberInfo.get(n) + ": Variable Redeclaration Error");	// same type name case
 	       
 	       return null;
 	    }
-	    
+	    //===============================================================================
 	    /**
 	     * f0 -> "public"
 	     * f1 -> Type()
@@ -288,17 +284,12 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	     * f11 -> ";"
 	     * f12 -> "}"
 	     */
-	    
 	    public String visit(MethodDeclaration n, String argu) {
 	       n.f0.accept(this, argu);
 	       String method_type = n.f1.accept(this, argu);
 	       String method_name = n.f2.accept(this, argu);
 	       n.f3.accept(this, argu);
-	       String val = n.f4.accept(this, argu);
-	       
-//	       if (val == null){
-//	    	   System.out.println("no method parameters");
-//	       }
+	       n.f4.accept(this, argu);
 	       
 	       
 	       // check for same method from parent (inheritance case)
@@ -308,26 +299,23 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	    	   
 	    	   // an vrika method ston patera me to idio onoma
 	    	   if (parentType != null){
-	    		   if (parentType.type.equals(method_type)){
-	    			   if (parentType.parameters.size() == method_parameter_types.size()){
-	    				   for (int i = 0; i < parentType.parameters.size(); i++){
+	    		   if (parentType.type.equals(method_type)){								// check if the method type is the same
+	    			   if (parentType.parameters.size() == method_parameter_types.size()){	// check if the # of parameters is the same
+	    				   for (int i = 0; i < parentType.parameters.size(); i++){			// check if the parameters type is the same
 	    					   if (!parentType.parameters.get(i).equals(method_parameter_types.get(i)))
-	    						   throw new RuntimeException("Error at inheritance method");
+	    						   throw new RuntimeException(LineNumberInfo.get(n) + ": Error at method " + method_name + ", Wrong Type of parameter/s at child method");
 	    				   }
 	    			   }
-	    			   else throw new RuntimeException("Error at inheritance method");
+	    			   else throw new RuntimeException(LineNumberInfo.get(n) + ": Error at method " + method_name + ", Wrong number of parameters at child method");
 	    		   }
-	    		   else throw new RuntimeException("Error at inheritance method");
+	    		   else throw new RuntimeException(LineNumberInfo.get(n) + ": Error at method " + method_name + ", Wrong Return Type at child method");
 	    	   }
-	    		  
-	    	   
-	    	   System.out.println(parent.scope_name);
 	       }
 	       
 	       SymbolType t = new SymbolType("method", method_name, method_type, method_parameter_types);	// create method type
 	       
 	       if (!table.insert(t))											// insert method type to cur scope
-	    	   throw new RuntimeException("Method Redeclaration Error");	// same method name case
+	    	   throw new RuntimeException(LineNumberInfo.get(n) + ": Method Redeclaration Error");	// same method name case
 	       
 	       table = table.enterScope(method_name);	
 	       
@@ -351,11 +339,11 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	       table = table.exitScope();
 	       
 	       method_parameter_names.clear();	// empty set for next method
-	       method_parameter_types.clear();
+	       method_parameter_types.clear();	// empty set for next method
 	       
 	       return null;
 	    }
-	    //////////////////////////////////////////////////////////////////////////
+	    //===============================================================================
 	    /**
 	     * f0 -> FormalParameter()
 	     * f1 -> FormalParameterTail()
@@ -366,7 +354,7 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	       
 	       return null;
 	    }
-	    //////////////////////////////////////////////////////////////////////////
+	    //===============================================================================
 	    /**
 	     * f0 -> Type()
 	     * f1 -> Identifier()
@@ -377,7 +365,7 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	       String parameter_name = n.f1.accept(this, argu);
 	       
 	       if (method_parameter_names.contains(parameter_name))		// checking for duplicate parameters in
-	    	   throw new RuntimeException("Duplicate parameter " + parameter_name);	// method declaration
+	    	   throw new RuntimeException(LineNumberInfo.get(n) + ": Duplicate parameter " + parameter_name);	// method declaration
 	       else {
 	    	   method_parameter_names.add(parameter_name);	// keep it to check redeclaration of parameters
 	    	   method_parameter_types.add(parameter_type);
@@ -385,24 +373,24 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	       
 	       return null;
 	    }
-	    //////////////////////////////////////////////////////////////////////////
+	    //===============================================================================
 	    /**
 	     * f0 -> ( FormalParameterTerm() )*
 	     */
 	    public String visit(FormalParameterTail n, String argu) {
 	       return n.f0.accept(this, argu);
 	    }
-	    //////////////////////////////////////////////////////////////////////////
+	 	//===============================================================================
 	    /**
 	     * f0 -> ","
 	     * f1 -> FormalParameter()
 	     */
 	    public String visit(FormalParameterTerm n, String argu) {
 	       n.f0.accept(this, argu);
-	       String parameter_type = n.f1.accept(this, argu);
+	       n.f1.accept(this, argu);
 	       return null;
 	    }
-	    //////////////////////////////////////////////////////////////////////////
+	    //===============================================================================
 	    /**
 	     * f0 -> <IDENTIFIER>
 	    */
@@ -410,7 +398,7 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	    	n.f0.accept(this, argu);
 	    	return n.f0.toString();
 	    }
-	    //////////////////////////////////////////////////////////////////////////
+	    //===============================================================================
 	    /**
 	     * f0 -> "boolean"
 	    */
@@ -418,7 +406,7 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	       n.f0.accept(this, argu);
 	       return n.f0.toString();
 	    }
-	    
+	    //===============================================================================
 	    /**
 	     * f0 -> "int"
 	    */
@@ -426,6 +414,7 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	       n.f0.accept(this, argu);
 	       return n.f0.toString();
 	    }
+	    //===============================================================================
 	    /**
 	     * f0 -> "int"
 	     * f1 -> "["
@@ -441,7 +430,7 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	       n.f2.accept(this, argu);
 	       return s;
 	    }
-	    
+	    //===============================================================================
 	    /**
 	     * f0 -> ArrayType()
 	     *       | BooleanType()
@@ -449,10 +438,8 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 	     *       | Identifier()
 	    */
 	    public String visit(Type n, String argu) {
-	    	
 	       String s = n.f0.accept(this, argu);
-	       
 	       return s;
 	    }
-	   
+	    //===============================================================================
 }

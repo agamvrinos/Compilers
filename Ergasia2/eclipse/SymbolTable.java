@@ -30,8 +30,6 @@ public class SymbolTable {
 			
 			for (SymbolType t: syms){
 				if (t.name.equals(type.name) && t.kind.equals(type.kind)){
-					System.out.println("Variable name already exists at " + scope_name + " scope");
-					System.out.println("Redeclaration");	
 					return false;
 				}
 			}
@@ -56,7 +54,6 @@ public class SymbolTable {
 			Set<SymbolType> syms = temp.sym_table.get(temp.scope_name);
 			
 			if (syms == null){
-//				System.out.println("EDW");
 				temp = Main.localScopes.get(temp);
 				continue;
 			}

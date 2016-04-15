@@ -1,5 +1,4 @@
 import syntaxtree.*;
-import visitor.*;
 import java.io.*;
 import java.util.Map;
 import java.util.Set;
@@ -9,17 +8,18 @@ class Main {
 	public static Map<String, SymbolTable> globalScope;
 	public static Map<SymbolTable, SymbolTable> localScopes;
 	public static Map<String, Map<String,SymbolTable>> mapping;
-	public static Map<String, String> globals;
 	
 	public static void main (String [] args){
 
 		FileInputStream fis = null;
 		for (int i = 0; i < args.length; i ++){
 		try{
-//			fis = new FileInputStream("LinkedList.java");
+			
+			System.out.println("=============================================================");
+			System.out.println("Program Name: " + args[i]);
+			System.out.println("=============================================================");
 			fis = new FileInputStream(args[i]);
 			MiniJavaParser parser = new MiniJavaParser(fis);
-//			System.err.println("Program parsed successfully.");
 			
 			Goal root = parser.Goal();
 			
@@ -34,11 +34,8 @@ class Main {
 			root.accept(eval3, null);
 			//==================================================
 			
-			System.err.println("Program " + args[i] + " TypeChecked successfully.");
-//			System.out.println("=======================");
-//			for (String s: class_names){
-//				System.out.println(s);
-//			}
+//			System.err.println("Program " + args[i] + " TypeChecked successfully.");
+
 		}
 		catch(ParseException ex){
 
@@ -48,10 +45,9 @@ class Main {
 			System.err.println(ex.getMessage());
 		}
 		catch(RuntimeException ex){
-//			System.err.println(ex.getMessage());
 			System.out.println("=============================================================");
 			System.out.println("ERROR AT PROGRAM: " + args[i]);
-			System.out.println("ERROR MESSAGE: " + ex.getMessage());
+			System.out.println(ex.getMessage());
 			System.out.println("=============================================================");
 			continue;
 		}

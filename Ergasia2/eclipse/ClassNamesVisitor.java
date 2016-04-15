@@ -7,11 +7,9 @@ import visitor.GJDepthFirst;
 public class ClassNamesVisitor extends GJDepthFirst<Set<String>, Integer>{
 
 	public Set<String> class_names;
-	public Set<String> simple_classes;
 
 	public ClassNamesVisitor() {
 		class_names = new HashSet<>();
-		simple_classes = new HashSet<>();
 	}
 	/**
     * f0 -> MainClass()
@@ -49,8 +47,6 @@ public class ClassNamesVisitor extends GJDepthFirst<Set<String>, Integer>{
     public Set<String> visit(MainClass n, Integer argu) {
 		   
 		class_names.add(n.f1.f0.toString());	// add class name to HashSet
-		simple_classes.add(n.f1.f0.toString());
-		System.out.println(n.f1.f0.toString());
 		  
 		n.f0.accept(this, argu);
 		n.f1.accept(this, argu);
@@ -88,11 +84,13 @@ public class ClassNamesVisitor extends GJDepthFirst<Set<String>, Integer>{
     	String class_name = n.f1.f0.toString();
     	
     	if (class_names.contains(class_name))
-    		throw new RuntimeException("Type " + class_name + " already defined");
+			try {
+				throw new RuntimeException(LineNumberInfo.get(n) + ": Type " + class_name + " already defined");
+			} catch (RuntimeException e) {
+				System.out.println(e.getMessage());
+			}
     	
-    	class_names.add(class_name);			// add class name to HashSet
-    	simple_classes.add(class_name);
-//        System.out.println(n.f1.f0.toString());
+    	class_names.add(class_name);	// add class name to HashSet
         
         n.f0.accept(this, argu);
         n.f1.accept(this, argu);
@@ -118,11 +116,22 @@ public class ClassNamesVisitor extends GJDepthFirst<Set<String>, Integer>{
     	
     	String name = n.f1.f0.toString();
     	String extended_class = n.f3.f0.toString();
+    	
+    	if (class_names.contains(name))
+			try {
+				throw new RuntimeException(LineNumberInfo.get(n) + ": Type " + name + " already defined");
+			} catch (RuntimeException e1) {
+				System.out.println(e1.getMessage());
+			}
+    	
     	if (!class_names.contains(extended_class))
-    		throw new RuntimeException("Inheritance Error");
+			try {
+				throw new RuntimeException(LineNumberInfo.get(n) + ": Inheritance Error");
+			} catch (RuntimeException e) {
+				System.out.println(e.getMessage());
+			}
     	
     	class_names.add(name);	// add class name to HashSet
-//    	simple_classes.add(name);
         
         n.f0.accept(this, argu);
         n.f1.accept(this, argu);
