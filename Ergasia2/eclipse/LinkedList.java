@@ -5,8 +5,15 @@ class LinkedList{
 }
 
 class A {
-	public int A(){
-		return 2;
+	public int get(){
+		int x;
+		if (x < 2){
+			x = 0;
+			x = 10;
+		}
+		else
+			x = 3;
+		return x;
 	}
 }
 

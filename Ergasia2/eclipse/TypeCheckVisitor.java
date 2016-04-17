@@ -102,6 +102,8 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 	    	    
 	    	}
 		}
+		
+		
 		/**
 		    * f0 -> MainClass()
 		    * f1 -> ( TypeDeclaration() )*
@@ -136,28 +138,13 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    * f17 -> "}"
 		    */
 		   public String visit(MainClass n, String argu) {
-		      String _ret=null;
-		      n.f0.accept(this, argu);
 		      String className = n.f1.accept(this, argu);
 		      current_class = className;
 		      current_method = "main";
-		      n.f2.accept(this, argu);
-		      n.f3.accept(this, argu);
-		      n.f4.accept(this, argu);
-		      n.f5.accept(this, argu);
-		      n.f6.accept(this, argu);
-		      n.f7.accept(this, argu);
-		      n.f8.accept(this, argu);
-		      n.f9.accept(this, argu);
-		      n.f10.accept(this, argu);
 		      n.f11.accept(this, argu);
-		      n.f12.accept(this, argu);
-		      n.f13.accept(this, argu);
 		      n.f14.accept(this, argu);
 		      n.f15.accept(this, argu);
-		      n.f16.accept(this, argu);
-		      n.f17.accept(this, argu);
-		      return _ret;
+		      return null;
 		   }
 
 		   /**
@@ -177,15 +164,11 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    * f5 -> "}"
 		    */
 		   public String visit(ClassDeclaration n, String argu) {
-		      String _ret=null;
-		      n.f0.accept(this, argu);
 		      String className = n.f1.accept(this, argu);
 		      current_class = className;
-		      n.f2.accept(this, argu);
 		      n.f3.accept(this, argu);
 		      n.f4.accept(this, argu);
-		      n.f5.accept(this, argu);
-		      return _ret;
+		      return null;
 		   }
 
 		   /**
@@ -199,17 +182,12 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    * f7 -> "}"
 		    */
 		   public String visit(ClassExtendsDeclaration n, String argu) {
-		      String _ret=null;
-		      n.f0.accept(this, argu);
 		      String className = n.f1.accept(this, argu);
 		      current_class = className;
-		      n.f2.accept(this, argu);
 		      n.f3.accept(this, argu);
-		      n.f4.accept(this, argu);
 		      n.f5.accept(this, argu);
 		      n.f6.accept(this, argu);
-		      n.f7.accept(this, argu);
-		      return _ret;
+		      return null;
 		   }
 
 		   /**
@@ -218,11 +196,9 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    * f2 -> ";"
 		    */
 		   public String visit(VarDeclaration n, String argu) {
-		      String _ret=null;
 		      n.f0.accept(this, argu);
 		      n.f1.accept(this, argu);
-		      n.f2.accept(this, argu);
-		      return _ret;
+		      return null;
 		   }
 
 		   /**
@@ -241,21 +217,14 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    * f12 -> "}"
 		    */
 		   public String visit(MethodDeclaration n, String argu) {
-		      String _ret=null;
-		      n.f0.accept(this, argu);
 		      String methodType = n.f1.accept(this, argu);	// className, int, int[], boolean
 		      String methodName = n.f2.accept(this, argu);
 		      current_method = methodName;
-		      n.f3.accept(this, argu);
 		      n.f4.accept(this, argu);
-		      n.f5.accept(this, argu);
-		      n.f6.accept(this, argu);
 		      n.f7.accept(this, argu);
 		      n.f8.accept(this, argu);
 		      n.f9.accept(this, argu);
 		      String return_type = n.f10.accept(this, argu);
-		      n.f11.accept(this, argu);
-		      n.f12.accept(this, argu);
 		      
 		      String mtype = Main.mapping.get(current_class).get(current_method).typeCheck(methodType, "variable");
 		      String rtype = Main.mapping.get(current_class).get(current_method).typeCheck(return_type, "variable");
@@ -282,7 +251,7 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    		  throw new RuntimeException(LineNumberInfo.get(n) + ": Type mismatch: cannot convert from " + rtype + " to " + mtype);
 		      }
 		      
-		      return _ret;
+		      return null;
 		   }
 
 		   /**
@@ -301,9 +270,6 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    * f2 -> "]"
 		    */
 		   public String visit(ArrayType n, String argu) {
-		      n.f0.accept(this, argu);
-		      n.f1.accept(this, argu);
-		      n.f2.accept(this, argu);
 		      return "int[]";
 		   }
 
@@ -311,7 +277,6 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    * f0 -> "boolean"
 		    */
 		   public String visit(BooleanType n, String argu) {
-		      n.f0.accept(this, argu);
 		      return "boolean";
 		   }
 
@@ -319,7 +284,6 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    * f0 -> "int"
 		    */
 		   public String visit(IntegerType n, String argu) {
-		      n.f0.accept(this, argu);
 		      return "int";
 		   }
 
@@ -341,11 +305,8 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    * f2 -> "}"
 		    */
 		   public String visit(Block n, String argu) {
-		      String _ret=null;
-		      n.f0.accept(this, argu);
 		      n.f1.accept(this, argu);
-		      n.f2.accept(this, argu);
-		      return _ret;
+		      return null;
 		   }
 
 		   /**
@@ -357,9 +318,7 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		   public String visit(AssignmentStatement n, String argu) {
 			   
 		      String lvalue = n.f0.accept(this, argu);
-		      n.f1.accept(this, argu);
 		      String rvalue = n.f2.accept(this, argu);
-		      n.f3.accept(this, argu);
 		      
 		      String ltype = Main.mapping.get(current_class).get(current_method).typeCheck(lvalue, "variable");
 		      String rtype = Main.mapping.get(current_class).get(current_method).typeCheck(rvalue, "variable");
@@ -405,12 +364,8 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		   public String visit(ArrayAssignmentStatement n, String argu) {
 			  
 		      String arr = n.f0.accept(this, argu);
-		      n.f1.accept(this, argu);
 		      String arrIndex = n.f2.accept(this, argu);
-		      n.f3.accept(this, argu);
-		      n.f4.accept(this, argu);
 		      String rvalue = n.f5.accept(this, argu);
-		      n.f6.accept(this, argu);
 		      
 		      String arrtype = Main.mapping.get(current_class).get(current_method).typeCheck(arr, "variable");
 		      String arrIndexType = Main.mapping.get(current_class).get(current_method).typeCheck(arrIndex, "variable");
@@ -451,12 +406,8 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    * f6 -> Statement()
 		    */
 		   public String visit(IfStatement n, String argu) {
-		      n.f0.accept(this, argu);
-		      n.f1.accept(this, argu);
 		      String expr = n.f2.accept(this, argu);
-		      n.f3.accept(this, argu);
 		      n.f4.accept(this, argu);
-		      n.f5.accept(this, argu);
 		      n.f6.accept(this, argu);
 		      
 		      String expr_type = Main.mapping.get(current_class).get(current_method).typeCheck(expr, "variable");
@@ -481,9 +432,7 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    */
 		   public String visit(WhileStatement n, String argu) {
 		      n.f0.accept(this, argu);
-		      n.f1.accept(this, argu);
 		      String expr = n.f2.accept(this, argu);
-		      n.f3.accept(this, argu);
 		      n.f4.accept(this, argu);
 		      
 		      String expr_type = Main.mapping.get(current_class).get(current_method).typeCheck(expr, "variable");
@@ -507,11 +456,7 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    * f4 -> ";"
 		    */
 		   public String visit(PrintStatement n, String argu) {
-		      n.f0.accept(this, argu);
-		      n.f1.accept(this, argu);
 		      String value = n.f2.accept(this, argu);
-		      n.f3.accept(this, argu);
-		      n.f4.accept(this, argu);
 		      
 		      String ltype = Main.mapping.get(current_class).get(current_method).typeCheck(value, "variable");
 		      
@@ -548,7 +493,6 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		   public String visit(AndExpression n, String argu) {
 		      
 		      String lvalue = n.f0.accept(this, argu);
-		      n.f1.accept(this, argu);
 		      String rvalue = n.f2.accept(this, argu);
 		      
 		      String ltype = Main.mapping.get(current_class).get(current_method).typeCheck(lvalue, "variable");
@@ -574,7 +518,6 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    */
 		   public String visit(CompareExpression n, String argu) {
 			  String lvalue = n.f0.accept(this, argu);
-		      n.f1.accept(this, argu);
 		      String rvalue = n.f2.accept(this, argu);
 		      
 		      String ltype = Main.mapping.get(current_class).get(current_method).typeCheck(lvalue, "variable");
@@ -600,7 +543,6 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    */
 		   public String visit(PlusExpression n, String argu) {
 		      String lvalue = n.f0.accept(this, argu);
-		      n.f1.accept(this, argu);
 		      String rvalue = n.f2.accept(this, argu);
 		      
 		      String ltype = Main.mapping.get(current_class).get(current_method).typeCheck(lvalue, "variable");
@@ -626,7 +568,6 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    */
 		   public String visit(MinusExpression n, String argu) {
 			  String lvalue = n.f0.accept(this, argu);
-			  n.f1.accept(this, argu);
 			  String rvalue = n.f2.accept(this, argu);
 			  
 			  String ltype = Main.mapping.get(current_class).get(current_method).typeCheck(lvalue, "variable");
@@ -652,7 +593,6 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    */
 		   public String visit(TimesExpression n, String argu) {
 			  String lvalue = n.f0.accept(this, argu);
-			  n.f1.accept(this, argu);
 			  String rvalue = n.f2.accept(this, argu);
 			      
 			  String ltype = Main.mapping.get(current_class).get(current_method).typeCheck(lvalue, "variable");
@@ -680,9 +620,7 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		   public String visit(ArrayLookup n, String argu) {
 			   
 		      String lvalue = n.f0.accept(this, argu);
-		      n.f1.accept(this, argu);
 		      String rvalue = n.f2.accept(this, argu);
-		      n.f3.accept(this, argu);
 		      
 		      String ltype = Main.mapping.get(current_class).get(current_method).typeCheck(lvalue, "variable");
 		      String rtype = Main.mapping.get(current_class).get(current_method).typeCheck(rvalue, "variable");
@@ -706,8 +644,6 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		   public String visit(ArrayLength n, String argu) {
 			   
 		      String lvalue = n.f0.accept(this, argu);
-		      n.f1.accept(this, argu);
-		      n.f2.accept(this, argu);
 		      
 		      String ltype = Main.mapping.get(current_class).get(current_method).typeCheck(lvalue, "variable");
 		      
@@ -826,7 +762,6 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    * f1 -> Expression()
 		    */
 		   public String visit(ExpressionTerm n, String argu) {
-		      n.f0.accept(this, argu);
 		      String parameter_type = n.f1.accept(this, argu);
 		      
 		      String partype = Main.mapping.get(current_class).get(current_method).typeCheck(parameter_type, "variable");
@@ -867,7 +802,6 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    * f0 -> <INTEGER_LITERAL>
 		    */
 		   public String visit(IntegerLiteral n, String argu) {
-		      n.f0.accept(this, argu);
 		      return "int";
 		   }
 
@@ -875,7 +809,6 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    * f0 -> "true"
 		    */
 		   public String visit(TrueLiteral n, String argu) {
-		      n.f0.accept(this, argu);
 		      return "boolean";
 		   }
 
@@ -883,7 +816,6 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    * f0 -> "false"
 		    */
 		   public String visit(FalseLiteral n, String argu) {
-		      n.f0.accept(this, argu);
 		      return "boolean";
 		   }
 
@@ -891,7 +823,6 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    * f0 -> <IDENTIFIER>
 		    */
 		   public String visit(Identifier n, String argu) {
-		      n.f0.accept(this, argu);
 		      return n.f0.toString();
 		   }
 
@@ -899,7 +830,6 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    * f0 -> "this"
 		    */
 		   public String visit(ThisExpression n, String argu) {
-		      n.f0.accept(this, argu);
 		      return "this";
 		   }
 
@@ -911,11 +841,7 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    * f4 -> "]"
 		    */
 		   public String visit(ArrayAllocationExpression n, String argu) {
-		      n.f0.accept(this, argu);
-		      n.f1.accept(this, argu);
-		      n.f2.accept(this, argu);
 		      String lvalue = n.f3.accept(this, argu);
-		      n.f4.accept(this, argu);
 		      
 		      String ltype = Main.mapping.get(current_class).get(current_method).typeCheck(lvalue, "variable");
 		      
@@ -935,10 +861,7 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    * f3 -> ")"
 		    */
 		   public String visit(AllocationExpression n, String argu) {
-		      n.f0.accept(this, argu);
 		      String lvalue = n.f1.accept(this, argu);
-		      n.f2.accept(this, argu);
-		      n.f3.accept(this, argu);
 		      
 		      if (!Main.globalScope.containsKey(lvalue))
 		    		  throw new RuntimeException(LineNumberInfo.get(n) + ": Error at new ID() expression: ID does not exist");
@@ -951,7 +874,6 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    * f1 -> Clause()
 		    */
 		   public String visit(NotExpression n, String argu) {
-		      n.f0.accept(this, argu);
 		      String retval = n.f1.accept(this, argu);
 		      return retval;
 		   }
@@ -962,9 +884,7 @@ public class TypeCheckVisitor extends GJDepthFirst<String, String> {
 		    * f2 -> ")"
 		    */
 		   public String visit(BracketExpression n, String argu) {
-		      n.f0.accept(this, argu);
 		      String ret = n.f1.accept(this, argu);
-		      n.f2.accept(this, argu);
 		      
 		      return ret;
 		   }
