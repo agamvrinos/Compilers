@@ -1,9 +1,0 @@
-////// FIRST CHECKS ///////
-
-java Main InputFiles/BinaryTree.java InputFiles/BubbleSort-error.java InputFiles/BubbleSort.java InputFiles/Factorial-error.java InputFiles/Factorial.java InputFiles/LinearSearch-error.java InputFiles/LinearSearch.java InputFiles/LinkedList-error.java InputFiles/LinkedList.java InputFiles/MoreThan4-error.java InputFiles/MoreThan4.java InputFiles/QuickSort-error.java InputFiles/QuickSort.java InputFiles/TreeVisitor-error.java InputFiles/TreeVisitor.java
-
-////// MINIJAVA-EXTRA-ERROR ///////
-java Main minijava-error-extra/BadAssign.java minijava-error-extra/BadAssign2.java minijava-error-extra/Classes-error.java minijava-error-extra/DoubleDeclaration1.java minijava-error-extra/DoubleDeclaration4.java minijava-error-extra/DoubleDeclaration6.java minijava-error-extra/NoMatchingMethod.java minijava-error-extra/NoMethod.java minijava-error-extra/Overload1.java minijava-error-extra/test18.java minijava-error-extra/test21.java minijava-error-extra/test35.java minijava-error-extra/test52.java minijava-error-extra/test68.java minijava-error-extra/UseArgs.java
-
-////// MINIJAVA-EXTRA ///////
-java Main minijava-extra/Add.java minijava-extra/ArrayTest.java minijava-extra/CallFromSuper.java minijava-extra/Classes.java minijava-extra/DerivedCall.java minijava-extra/Example1.java minijava-extra/FieldAndClassConflict.java minijava-extra/Main.java minijava-extra/ManyClasses.java minijava-extra/OutOfBounds1.java minijava-extra/Overload2.java minijava-extra/ShadowBaseField.java minijava-extra/ShadowField.java minijava-extra/test06.java minijava-extra/test07.java minijava-extra/test15.java minijava-extra/test17.java minijava-extra/test20.java minijava-extra/test62.java minijava-extra/test73.java minijava-extra/test82.java minijava-extra/test93.java minijava-extra/test99.java 
