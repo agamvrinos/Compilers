@@ -3,26 +3,37 @@ import java.util.*;
 public class Types {
 	List<SymbolType> fields;
 	List<SymbolType> methods;
+	int methods_counter;
+	int fields_counter;
 	
 	public Types() {
 		fields = new ArrayList<>();
 		methods = new ArrayList<>();
+		
+		methods_counter = 0;
+		fields_counter = 0;
 	}
 	
 	boolean addField(SymbolType stype){
 		if (existsFieldCheck(stype.name) != null)
 			return false;
 		
+		stype.offset = fields_counter;
 		fields.add(stype);
+		fields_counter++;
+		
 		return true;
 	}
 	
 	boolean addMethod(SymbolType stype){
 		
-		if (existsMethodCheck(stype.name) != null)
+		if (existsMethodCheck(stype.name) != null){
 			return false;
+		}
 		
+		stype.offset = methods_counter;
 		methods.add(stype);
+		methods_counter ++;
 		return true;
 	}
 	
@@ -42,19 +53,27 @@ public class Types {
 		return null;	// Name not found, Add is possible
 	}
 	
+	public int getMethods_counter() {
+		return methods_counter;
+	}
+	
+	public int getFields_counter() {
+		return fields_counter;
+	}
+	
 	void printTypes(String scope_name){
 	      
-		System.err.println("----------------------------------------");
-		System.err.println("Printing methods for scope " + scope_name);
-		System.err.println("----------------------------------------");
+		System.out.println("----------------------------------------");
+		System.out.println("Printing methods for scope " + scope_name);
+		System.out.println("----------------------------------------");
 		
 		for (SymbolType type : methods)
 			type.printType();
 			
 		
-		System.err.println("----------------------------------------");
-		System.err.println("Printing fields for scope " + scope_name);
-		System.err.println("----------------------------------------");
+		System.out.println("----------------------------------------");
+		System.out.println("Printing fields for scope " + scope_name);
+		System.out.println("----------------------------------------");
 		
 		for (SymbolType type : fields)
 			type.printType();

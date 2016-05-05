@@ -3,11 +3,13 @@ import java.util.*;
 public class SymbolType {
 	String name;
 	String type;
+	Integer offset;
 	List<String> parameters;
 	
 	SymbolType(String name, String type){	// Simple variable
 		this.name = name;
 		this.type = type;
+		this.offset = -1;
 		parameters = null;
 	}
 	
@@ -27,6 +29,7 @@ public class SymbolType {
 		System.out.println("******************************");
 		System.out.println("Name = " + name);
 		System.out.println("Type|RetVal = " + type);
+		System.out.println("Offset = " + offset);
 		
 		if (parameters != null){
 			for(String e: parameters)

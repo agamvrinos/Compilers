@@ -1,4 +1,4 @@
-//import syntaxtree.*;
+import syntaxtree.*;
 import java.io.*;
 import java.util.*;
 
@@ -10,23 +10,46 @@ class Main {
 	
 	public static void main (String [] args){
 
-		SymbolTable myTable = new SymbolTable("A");
-		myTable.insertField(new SymbolType("x", "int"));
-		myTable.insertField(new SymbolType("y", "int"));
+	    FileInputStream fis = null;
+		try{
+			
+			fis = new FileInputStream("TestInput.java");
+			MiniJavaParser parser = new MiniJavaParser(fis);
+			
+			Goal root = parser.Goal();
+			
+			//==================== PHASE 1======================
+			ClassNamesVisitor eval = new ClassNamesVisitor();
+			Set<String> class_names = root.accept(eval, null);				// Get phase1 results
+			//==================== PHASE 2======================
+			SymbolTableVisitor eval2 = new SymbolTableVisitor(class_names);	// Pass phase1 results to 2nd visitor
+			root.accept(eval2, null);
+			//==================== PHASE 3======================
+			LoweringVisitor eval3 = new LoweringVisitor();					// Build Spiglet representation	
+			root.accept(eval3, null);
+			//==================================================
+			
+//			eval2.printGlobalScopes();
+//			eval2.printLocalScopes();
+//			eval2.printAllSymbolTables();
+//			eval2.printMapping();
+
+		}
+		catch(ParseException ex){
+
+			System.out.println(ex.getMessage());
+		}
+		catch(FileNotFoundException ex){
+			System.err.println(ex.getMessage());
+		}
 		
-		List<String> parameters = new ArrayList<>();
-		parameters.add("int");
-		parameters.add("boolean");
-		
-		myTable.insertMethod(new SymbolType("foo", "int", parameters));
-		
-		myTable.printSymbolTable();
-		
-	    myTable = myTable.enterScope("foo");
-	    myTable.insertField(new SymbolType("z", "int"));
-	    
-	    myTable.printSymbolTable();
-	    
-	    SymbolType m = myTable.lookup("z", "field");
+		finally{
+			try{
+				if(fis != null) fis.close();
+			}
+			catch(IOException ex){
+				System.err.println(ex.getMessage());
+			}
+		}
 	}
 }
