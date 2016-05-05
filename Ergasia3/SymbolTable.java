@@ -2,23 +2,20 @@ import java.util.*;
 
 public class SymbolTable {
 	
-	Map<String, Types> sym_table;	// Mapping Scope name to Types 
+	public Types sym_table; 
 	public String scope_name;
 	
 	public SymbolTable() {
-		sym_table = new HashMap<>();
+		sym_table = new Types();
 		
 		// Parent will point to null
 		Main.localScopes.put(this, null);
 	}
 	
 	public SymbolTable(String scope_name) {
-		sym_table = new HashMap<>();
-		this.scope_name = scope_name;
+		sym_table = new Types();
 		
-		// REMOVE THIS LATERRRRRRRRRR// REMOVE THIS LATERRRRRRRRRR// REMOVE THIS LATERRRRRRRRRR
-		Main.localScopes = new HashMap<>(); // REMOVE THIS LATERRRRRRRRRR
-		// REMOVE THIS LATERRRRRRRRRR// REMOVE THIS LATERRRRRRRRRR// REMOVE THIS LATERRRRRRRRRR
+		this.scope_name = scope_name;
 	}
 	
 	SymbolTable enterScope(String new_scope_name){
@@ -33,49 +30,17 @@ public class SymbolTable {
 	//====================================================================================================
 	boolean insertField(SymbolType stype){
 		
-		// If this scope exists
-		if (sym_table.containsKey(scope_name)){	
-			
-			// Get Types
-			Types types = sym_table.get(scope_name);	
-			
-			if (!types.addField(stype))	// Add field
-				return false;			// False, if field name exists
-		}
-		else {
-			Types types = new Types();			// Scope match does not exist, Create
-			
-			// Add it to ArrayList
-			types.addField(stype);
-			
-			// Add it to Scope
-			sym_table.put(scope_name,types);
-		}
+		if (!sym_table.addField(stype))	// Add field
+			return false;			// False, if field name exists
 		
 		return true;
 	}	
 	//====================================================================================================
 	boolean insertMethod(SymbolType stype){
 		
-		// If this scope exists
-		if (sym_table.containsKey(scope_name)){	
-			
-			// Get Types
-			Types types = sym_table.get(scope_name);	
-			
-			if (!types.addMethod(stype))	// Add field
+		if (!sym_table.addMethod(stype))	// Add field
 				return false;				// False, if field name exists
-		}
-		else {
-			Types types = new Types();		// Scope match does not exist, Create
-		
-			// Add it to ArrayList
-			types.addMethod(stype);
-			
-			// Add it to Scope
-			sym_table.put(scope_name,types);
-		}
-		
+
 		return true;
 	}	
 	//====================================================================================================
@@ -88,7 +53,7 @@ public class SymbolTable {
 		while (temp != null){
 			
 			Types types = null;
-			types = temp.sym_table.get(temp.scope_name);
+			types = sym_table;
 			
 			// Class might be empty
 			if (types == null){
@@ -131,7 +96,12 @@ public class SymbolTable {
 		return t;
 	}
 	//====================================================================================================
+
 	void printSymbolTable(){
-	      sym_table.get(scope_name).printTypes(scope_name);
+		System.out.println("SCOPE NAME: " + scope_name);
+		Types types = sym_table;
+		if (types != null){
+			types.printTypes(scope_name);
+		}
 	}
 }

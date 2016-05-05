@@ -61,6 +61,10 @@ public class Types {
 		return fields_counter;
 	}
 	
+	public List<SymbolType> getMethods() {
+		return methods;
+	}
+	
 	void printTypes(String scope_name){
 	      
 		System.out.println("----------------------------------------");

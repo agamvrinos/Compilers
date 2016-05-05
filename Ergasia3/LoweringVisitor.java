@@ -48,6 +48,12 @@ public class LoweringVisitor extends GJDepthFirst<String, String>{
 		return label;
 	}
 	
+	// Returns new GLOBAL vTable LABEL
+	public String getMethodLabel(String class_name, String method_name){
+		String label = class_name + "_" + method_name;
+		return label;
+	}
+	
 	/**
     * f0 -> MainClass()
     * f1 -> ( TypeDeclaration() )*
@@ -94,9 +100,11 @@ public class LoweringVisitor extends GJDepthFirst<String, String>{
 			
 			String class_name = entry.getKey();
 			SymbolTable table = entry.getValue();
+			SymbolTable parent = Main.localScopes.get(Main.globalScope.get(class_name));
+
+			Integer cnt = Utils.getMergedMethodNum(table, parent);
 			
-			Integer cnt = table.sym_table.getMethods_counter();
-			if (cnt != null) System.out.println("COUNTER FOR " + class_name + ": " + cnt);
+			System.out.println("COUNTER FOR " + class_name + ": " + cnt);
 			cnt *= 4;	// vtable space to allocate
 			
 			// Create vTable label
@@ -112,6 +120,20 @@ public class LoweringVisitor extends GJDepthFirst<String, String>{
 			
 			// Store vTable to the Global label address
 			buffer += "\tHSTORE " + temp + " 0 " + temp2 + "\n";
+			
+			// Fill data (methods) to the vTables 
+			List <String> merged_methods = Utils.getMergetMethods(table, parent);
+			
+			Integer off = 0;
+			for (String st : merged_methods){
+				String methodtemp = getTemp();
+				buffer += "\tMOVE " + methodtemp + " " + st + "\n";
+				buffer += "\tHSTORE " + temp2 + " " + off + " " + methodtemp + "\n";
+				off += 4;
+			}
+			
+			
+			buffer += "\t=====================================================\n";
 			
 	  	}
 		
