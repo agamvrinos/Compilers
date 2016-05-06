@@ -20,6 +20,7 @@ public class LoweringVisitor extends GJDepthFirst<String, String>{
 		
 		
 	String buffer;
+	String current_class;
 	Integer temp_counter;
 	Integer label_counter;
 		
@@ -94,17 +95,23 @@ public class LoweringVisitor extends GJDepthFirst<String, String>{
     * f17 -> "}"
     */
     public String visit(MainClass n, String argu) {
-		buffer = "MAIN:\n"; 
+		buffer = "MAIN\n"; 
+		current_class = n.f1.f0.toString();
 		
 		for (Map.Entry<String,SymbolTable> entry : Main.globalScope.entrySet()) {
 			
 			String class_name = entry.getKey();
 			SymbolTable table = entry.getValue();
 			SymbolTable parent = Main.localScopes.get(Main.globalScope.get(class_name));
-
+			
+			System.out.println("CHILD NAME: " + table.scope_name);
+			if (parent != null)
+				System.out.println("PARENT NAME: " + parent.scope_name);
+			else 
+				System.out.println("PARENT NAME: " + "null");
 			Integer cnt = Utils.getMergedMethodNum(table, parent);
 			
-			System.out.println("COUNTER FOR " + class_name + ": " + cnt);
+//			System.out.println("COUNTER FOR " + class_name + ": " + cnt);
 			cnt *= 4;	// vtable space to allocate
 			
 			// Create vTable label
@@ -122,7 +129,7 @@ public class LoweringVisitor extends GJDepthFirst<String, String>{
 			buffer += "\tHSTORE " + temp + " 0 " + temp2 + "\n";
 			
 			// Fill data (methods) to the vTables 
-			List <String> merged_methods = Utils.getMergetMethods(table, parent);
+			List <String> merged_methods = Utils.getMergedMethods(table, parent);
 			
 			Integer off = 0;
 			for (String st : merged_methods){
@@ -148,8 +155,93 @@ public class LoweringVisitor extends GJDepthFirst<String, String>{
 		n.f14.accept(this, argu);
 		n.f15.accept(this, argu);
 		  
-		buffer += "END:\n"; 
+		buffer += "END\n"; 
 		return null;
     }
+    //===============================================================================  
+	/**
+    * f0 -> "class"
+    * f1 -> Identifier()
+    * f2 -> "{"
+    * f3 -> ( VarDeclaration() )*
+    * f4 -> ( MethodDeclaration() )*
+    * f5 -> "}"
+    */
+    public String visit(ClassDeclaration n, String argu){
+    	
+    	String name = n.f1.f0.toString();
+    	
+    	current_class = name;
+    	
+        n.f0.accept(this, argu);
+        n.f1.accept(this, argu);
+        n.f2.accept(this, argu);
+        n.f3.accept(this, argu);
+        n.f4.accept(this, argu);
+        n.f5.accept(this, argu);
+        
+        return null;
+    }
+    //===============================================================================
+    /**
+     * f0 -> "class"
+     * f1 -> Identifier()
+     * f2 -> "extends"
+     * f3 -> Identifier()
+     * f4 -> "{"
+     * f5 -> ( VarDeclaration() )*
+     * f6 -> ( MethodDeclaration() )*
+     * f7 -> "}"
+    */
+  	    
+    public String visit(ClassExtendsDeclaration n, String argu) {
+        
+    	String name = n.f1.f0.toString();
+    	String extended_name = n.f3.f0.toString();
+    	current_class = name;
+    	
+        n.f0.accept(this, argu);
+        n.f1.accept(this, argu);
+        n.f2.accept(this, argu);
+        n.f3.accept(this, argu);
+        n.f4.accept(this, argu);
+        n.f5.accept(this, argu);
+        n.f6.accept(this, name);
+        n.f7.accept(this, argu);
+        
+        return null;
+    }
+    //===============================================================================
+    /**
+     * f0 -> "public"
+     * f1 -> Type()
+     * f2 -> Identifier()
+     * f3 -> "("
+     * f4 -> ( FormalParameterList() )?
+     * f5 -> ")"
+     * f6 -> "{"
+     * f7 -> ( VarDeclaration() )*
+     * f8 -> ( Statement() )*
+     * f9 -> "return"
+     * f10 -> Expression()
+     * f11 -> ";"
+     * f12 -> "}"
+     */
+    public String visit(MethodDeclaration n, String argu) {
+		
+		String method_name = n.f2.f0.toString();
+		
+		buffer += getMethodLabel(current_class, method_name) + "\n";
+		n.f0.accept(this, argu);
+		n.f1.accept(this, argu);
+		n.f2.accept(this, argu);
+		n.f3.accept(this, argu);
+		n.f4.accept(this, argu);
+	   
+	   buffer += "END\n";
+	  
+	   
+	   return null;
+	}
 	    
 }

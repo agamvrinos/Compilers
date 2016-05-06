@@ -7,9 +7,12 @@ class Main {
 	public static Map<String, SymbolTable> globalScope;
 	public static Map<SymbolTable, SymbolTable> localScopes;
 	public static Map<String, Map<String,SymbolTable>> mapping;
+	public static Map<String, List<String>> vTables;
 	
 	public static void main (String [] args){
-
+		
+		Main.vTables = new HashMap<>();
+		
 	    FileInputStream fis = null;
 		try{
 			
@@ -29,10 +32,11 @@ class Main {
 			root.accept(eval3, null);
 			//==================================================
 			
-//			eval2.printGlobalScopes();
-//			eval2.printLocalScopes();
-//			eval2.printAllSymbolTables();
-//			eval2.printMapping();
+//			Utils.printGlobalScopes();
+//			Utils.printLocalScopes();
+//			Utils.printAllSymbolTables();
+//			Utils.printMapping();
+			Utils.printVTables();
 
 		}
 		catch(ParseException ex){

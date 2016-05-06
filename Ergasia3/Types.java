@@ -1,8 +1,8 @@
 import java.util.*;
 
 public class Types {
-	List<SymbolType> fields;
-	List<SymbolType> methods;
+	List<FieldType> fields;
+	List<MethodType> methods;
 	int methods_counter;
 	int fields_counter;
 	
@@ -14,40 +14,40 @@ public class Types {
 		fields_counter = 0;
 	}
 	
-	boolean addField(SymbolType stype){
-		if (existsFieldCheck(stype.name) != null)
+	boolean addField(FieldType ftype){
+		if (existsFieldCheck(ftype.getName()) != null)
 			return false;
 		
-		stype.offset = fields_counter;
-		fields.add(stype);
+		ftype.setOffset(fields_counter);
+		fields.add(ftype);
 		fields_counter++;
 		
 		return true;
 	}
 	
-	boolean addMethod(SymbolType stype){
+	boolean addMethod(MethodType mtype){
 		
-		if (existsMethodCheck(stype.name) != null){
+		if (existsMethodCheck(mtype.getName()) != null){
 			return false;
 		}
 		
-		stype.offset = methods_counter;
-		methods.add(stype);
+		mtype.setOffset(methods_counter);
+		methods.add(mtype);
 		methods_counter ++;
 		return true;
 	}
 	
-	SymbolType existsFieldCheck(String name){
-		for (SymbolType st : fields)	// Search for this name
-			if (st.name.equals(name))
+	FieldType existsFieldCheck(String name){
+		for (FieldType st : fields)		// Search for this name
+			if (st.getName().equals(name))
 				return st;				// Found same name (Redeclaration)
 		
-		return null;	// Name not found, Add is possible
+		return null;					// Name not found, Add is possible
 	}
 	
-	SymbolType existsMethodCheck(String name){
-		for (SymbolType st : methods)	// Search for this name
-			if (st.name.equals(name))
+	MethodType existsMethodCheck(String name){
+		for (MethodType st : methods)	// Search for this name
+			if (st.getName().equals(name))
 				return st;				// Found same name (Redeclaration)
 		
 		return null;	// Name not found, Add is possible
@@ -61,7 +61,7 @@ public class Types {
 		return fields_counter;
 	}
 	
-	public List<SymbolType> getMethods() {
+	public List<MethodType> getMethods() {
 		return methods;
 	}
 	
@@ -71,16 +71,16 @@ public class Types {
 		System.out.println("Printing methods for scope " + scope_name);
 		System.out.println("----------------------------------------");
 		
-		for (SymbolType type : methods)
-			type.printType();
+		for (MethodType type : methods)
+			type.printMethodType();
 			
 		
 		System.out.println("----------------------------------------");
 		System.out.println("Printing fields for scope " + scope_name);
 		System.out.println("----------------------------------------");
 		
-		for (SymbolType type : fields)
-			type.printType();
+		for (FieldType type : fields)
+			type.printFieldType();
 		
 		System.out.println("=========================================================================");
 	}

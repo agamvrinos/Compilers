@@ -2,18 +2,18 @@ import java.util.*;
 
 public class SymbolTable {
 	
-	public Types sym_table; 
+	public Types table_types; 
 	public String scope_name;
 	
 	public SymbolTable() {
-		sym_table = new Types();
+		table_types = new Types();
 		
 		// Parent will point to null
 		Main.localScopes.put(this, null);
 	}
 	
 	public SymbolTable(String scope_name) {
-		sym_table = new Types();
+		table_types = new Types();
 		
 		this.scope_name = scope_name;
 	}
@@ -25,62 +25,60 @@ public class SymbolTable {
 		
 		return new_table;
 	}
-	
-	
 	//====================================================================================================
-	boolean insertField(SymbolType stype){
+	boolean insertField(FieldType stype){
 		
-		if (!sym_table.addField(stype))	// Add field
-			return false;			// False, if field name exists
+		if (!table_types.addField(stype))	// Add field
+			return false;					// False, if field name exists
 		
 		return true;
 	}	
 	//====================================================================================================
-	boolean insertMethod(SymbolType stype){
+	boolean insertMethod(MethodType stype){
 		
-		if (!sym_table.addMethod(stype))	// Add field
-				return false;				// False, if field name exists
+		if (!table_types.addMethod(stype))	// Add method
+				return false;				// False, if method name exists
 
 		return true;
-	}	
+	}
 	//====================================================================================================
-	SymbolType lookup(String name, String kind){
+	MethodType lookupMethod(String name){
 		
 		// Start from current SymTable
 		SymbolTable temp = this;
 		
 		// While top limit not reached
 		while (temp != null){
+				
+			// Trying to find method
+			MethodType type = table_types.existsMethodCheck(name);
 			
-			Types types = null;
-			types = sym_table;
+			if (type != null)	// Not found at this scope
+				return type;
+			else
+				System.out.println("Could not find method \"" + name + "\" in " + temp.scope_name + " scope");
 			
-			// Class might be empty
-			if (types == null){
-				temp = Main.localScopes.get(temp);
-				continue;
-			}
+			// Go to parent
+			temp = Main.localScopes.get(temp);
+		}
+		return null;	// Type not found return null
+	}
+	//====================================================================================================
+	FieldType lookupField(String name){
+		
+		// Start from current SymTable
+		SymbolTable temp = this;
+		
+		// While top limit not reached
+		while (temp != null){
+				
+			// Trying to find field
+			FieldType type = table_types.existsFieldCheck(name);
 			
-			if (kind.equals("field")){
-				
-				// Trying to find field
-				SymbolType type = types.existsFieldCheck(name);
-				
-				if (type != null)	// Not found at this scope
-					return type;
-				else
-					System.out.println("Could not find field \"" + name + "\" in " + temp.scope_name + " scope");
-			}
-			else if (kind.equals("method")){
-				
-				// Trying to find method
-				SymbolType type = types.existsMethodCheck(name);
-				
-				if (type != null)	// Not found at this scope
-					return type;
-				else
-					System.out.println("Could not find method \"" + name + "\" in " + temp.scope_name + " scope");
-			}
+			if (type != null)	// Not found at this scope
+				return type;
+			else
+				System.out.println("Could not find field \"" + name + "\" in " + temp.scope_name + " scope");
 			
 			// Go to parent
 			temp = Main.localScopes.get(temp);
@@ -88,7 +86,6 @@ public class SymbolTable {
 		
 		return null;	// Type not found return null
 	}
-	
 	//====================================================================================================
 	SymbolTable exitScope(){
 		// return the scope that the current scope points to
@@ -96,12 +93,8 @@ public class SymbolTable {
 		return t;
 	}
 	//====================================================================================================
-
 	void printSymbolTable(){
 		System.out.println("SCOPE NAME: " + scope_name);
-		Types types = sym_table;
-		if (types != null){
-			types.printTypes(scope_name);
-		}
+		table_types.printTypes(scope_name);
 	}
 }
