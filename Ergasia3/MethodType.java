@@ -111,7 +111,7 @@ public class MethodType {
 		System.out.println("******************************");
 		for (FieldType f: locals)
 			f.printFieldType();
-		
+		System.out.println("xaxa");
 		for (Map.Entry<String, String> map : locals_to_temps.entrySet()){
 			System.out.println("Local: " + map.getKey() + ", Temp: " + map.getValue());
 		}

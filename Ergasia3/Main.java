@@ -19,12 +19,12 @@ class Main {
 			//==================== PHASE 1 ======================
 			SymbolTableVisitor eval2 = new SymbolTableVisitor();	// Build SymbolTables
 			root.accept(eval2, null);
-			Utils.printSymTables();
+			
 			//==================== PHASE 2 ======================
 			LoweringVisitor eval3 = new LoweringVisitor();			// Build Spiglet IR	
 			root.accept(eval3, null);
 			//===================================================
-			
+			Utils.printSymTables();
 			
 
 		}

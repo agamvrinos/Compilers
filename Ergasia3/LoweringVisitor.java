@@ -397,20 +397,21 @@ public class LoweringVisitor extends GJDepthFirst<DataBlock, DataBlock>{
     	answer_db = n.f2.accept(this, db);
     	String value = answer_db.temp;
        
-    	
-       if (Utils.symbolTables.get(current_class).fieldCheck(var_name) == null){
-//	       buffer += "\t================ MOVE ASSIGNMENT ================\n";
-	       buffer += "\tMOVE " + var_temp + " " + value + "\n";
-       }
-       else {
-    	   System.out.println(var_name + " HEHEHEH");
-    	   String offset = Utils.symbolTables.get(current_class).getOffsetField(var_name);
-    	   System.out.println(offset + " HEHEHEH");
-//    	   buffer += "\t================ STORE ASSIGNMENT ================\n";
-    	   buffer += "\tHSTORE TEMP 0 " + offset + " " + value + "\n";
-       	}
+    	if (Utils.symbolTables.get(current_class).info.localCheck(current_method, var_name) != null || Utils.symbolTables.get(current_class).info.argCheck(current_method, var_name) != null)
+    	{
+//		if (Utils.symbolTables.get(current_class).fieldCheck(var_name) == null){
+			buffer += "\t================ MOVE ASSIGNMENT ================\n";
+			buffer += "\tMOVE " + var_temp + " " + value + "\n";
+		}
+		else {
+			System.out.println(var_name + " HEHEHEH");
+			String offset = Utils.symbolTables.get(current_class).getOffsetField(var_name);
+			System.out.println(offset + " HEHEHEH");
+			buffer += "\t================ STORE ASSIGNMENT ================\n";
+			buffer += "\tHSTORE TEMP 0 " + offset + " " + value + "\n";
+   		}
 	   	return null;
-    }
+	}
     
     /**
      * f0 -> Identifier()
@@ -790,7 +791,7 @@ public class LoweringVisitor extends GJDepthFirst<DataBlock, DataBlock>{
     		System.out.println(method_name);
     		System.exit(0);
     	}
-//    	buffer += "\t================== METHOD CALL ==================\n";
+    	buffer += "\t================== METHOD CALL ==================\n";
     	//TODO: MOVE
 //    	buffer += "\tMOVE " + copy + " " + object_temp + "\n";
 //    	buffer += "\tHLOAD " + v_temp + " " + copy + " 0\n";
@@ -952,7 +953,7 @@ public class LoweringVisitor extends GJDepthFirst<DataBlock, DataBlock>{
 			    			String type = field.getType();
 			    			
 			    			if (argu.lvalue == false){
-//			    				buffer += "\t================ LOAD FIELD =================\n";
+			    				buffer += "\t================ LOAD FIELD =================\n";
 			    				buffer += "\tHLOAD " + temp + " TEMP 0 " + offset + "\n"; 
 			    			}
 			    				

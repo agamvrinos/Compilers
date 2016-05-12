@@ -1,6 +1,6 @@
 class ShadowField{
 
-    public static void main(String[] args) { 
+    public static void main(String[] args) {
         A a;
         a = new A();
         a = a.foo();

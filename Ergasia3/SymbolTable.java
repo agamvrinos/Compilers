@@ -84,22 +84,30 @@ public class SymbolTable {
 		}
 		else {
 			List <String> to_ret = new ArrayList<>();
+			List <String> to_ret3 = new ArrayList<>();
 			to_ret.addAll(parent_vTable);
 			
 			List<String> method_names = info.getMethodNames();
 			
 			for (int i = 0; i < to_ret.size(); i ++){
 				if (method_names.contains(to_ret.get(i).split("@")[1]))
-					to_ret.set(i, class_name + "_" + to_ret.get(i).split("@")[1]);
+					to_ret.set(i, class_name + "@" + to_ret.get(i).split("@")[1]);
 			}
 			
 			for (int i = 0; i < method_names.size(); i ++){
-				if (!to_ret.contains(class_name + "_" + method_names.get(i)))
-					to_ret.add(class_name + "_" + method_names.get(i));
+				if (!to_ret.contains(class_name + "@" + method_names.get(i)))
+					to_ret.add(class_name + "@" + method_names.get(i));
 			}
 			
 			info.vTable = to_ret;
-			return to_ret;
+			
+			for (int i = 0; i < to_ret.size(); i ++){
+				String c_name = to_ret.get(i).split("@")[0];
+				String m_name = to_ret.get(i).split("@")[1];
+				to_ret3.add(c_name + "_" + m_name);
+			}
+			
+			return to_ret3;
 		}
 	}
 	
