@@ -4,39 +4,28 @@ import java.util.*;
 
 class Main {
 	
-	public static Map<String, SymbolTable> globalScope;
-	public static Map<SymbolTable, SymbolTable> localScopes;
-	public static Map<String, Map<String,SymbolTable>> mapping;
-	public static Map<String, List<String>> vTables;
 	
 	public static void main (String [] args){
-		
-		Main.vTables = new HashMap<>();
 		
 	    FileInputStream fis = null;
 		try{
 			
-			fis = new FileInputStream("TestInput.java");
+			fis = new FileInputStream("/home/agg/Eclipse/GenerateIR/src/TestInput2.java");
 			MiniJavaParser parser = new MiniJavaParser(fis);
 			
 			Goal root = parser.Goal();
 			
-			//==================== PHASE 1======================
-			ClassNamesVisitor eval = new ClassNamesVisitor();
-			Set<String> class_names = root.accept(eval, null);				// Get phase1 results
-			//==================== PHASE 2======================
-			SymbolTableVisitor eval2 = new SymbolTableVisitor(class_names);	// Pass phase1 results to 2nd visitor
-			root.accept(eval2, null);
-			//==================== PHASE 3======================
-			LoweringVisitor eval3 = new LoweringVisitor();					// Build Spiglet representation	
-			root.accept(eval3, null);
-			//==================================================
 			
-//			Utils.printGlobalScopes();
-//			Utils.printLocalScopes();
-//			Utils.printAllSymbolTables();
-//			Utils.printMapping();
-			Utils.printVTables();
+			//==================== PHASE 1 ======================
+			SymbolTableVisitor eval2 = new SymbolTableVisitor();	// Build SymbolTables
+			root.accept(eval2, null);
+			Utils.printSymTables();
+			//==================== PHASE 2 ======================
+			LoweringVisitor eval3 = new LoweringVisitor();			// Build Spiglet IR	
+			root.accept(eval3, null);
+			//===================================================
+			
+			
 
 		}
 		catch(ParseException ex){
@@ -56,4 +45,6 @@ class Main {
 			}
 		}
 	}
+	
+	
 }
