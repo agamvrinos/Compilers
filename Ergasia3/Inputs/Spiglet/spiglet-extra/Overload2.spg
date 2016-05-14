@@ -1,8 +1,0 @@
-MAIN
-END
-
-A_x [ 1 ]
-BEGIN
-	RETURN 1
-END
-
