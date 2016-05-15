@@ -67,6 +67,15 @@ public class ClassInfo {
 		return null;
 	}
 	
+	public String getMethodType(String method_name){
+		for (MethodType method : methods){
+			if (method.getName().equals(method_name))
+				return method.getType();
+		}
+		
+		return null;
+	}
+	
 	public Integer getMaxArgumentsSize(){
 		Integer max = 0;
 		for (MethodType m: methods){

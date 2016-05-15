@@ -10,7 +10,7 @@ public class SymbolTableVisitor extends GJDepthFirst<String, String>{
 		List <FieldType> locals;
 		
 		public SymbolTableVisitor() {
-			Utils.symbolTables = new HashMap<>();
+			Utils.symbolTables = new LinkedHashMap<>();
 			parameters = new ArrayList<>();
 			locals = new ArrayList<>();
 		}

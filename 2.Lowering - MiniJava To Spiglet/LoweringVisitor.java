@@ -43,7 +43,8 @@ public class LoweringVisitor extends GJDepthFirst<DataBlock, DataBlock>{
 	static String buffer;
 	String current_class;
 	String current_method;
-	List<String> call_temps;
+	List<List<String>> call_temps2;
+	int index;
 	
 		
 	public LoweringVisitor() {
@@ -53,7 +54,8 @@ public class LoweringVisitor extends GJDepthFirst<DataBlock, DataBlock>{
 		// map local variables to TEMPS
 		Utils.mapAllLocals();	
 		
-		call_temps = new ArrayList<>();
+		call_temps2 = new ArrayList<>();
+		index = -1;
 	}
 	
 	/**
@@ -68,7 +70,7 @@ public class LoweringVisitor extends GJDepthFirst<DataBlock, DataBlock>{
 	  n.f2.accept(this, argu);
 	  
 	  // Emit the buffer
-	  System.out.println(buffer);
+//	  System.out.println(buffer);
 
 	  return null;
 	}
@@ -105,7 +107,6 @@ public class LoweringVisitor extends GJDepthFirst<DataBlock, DataBlock>{
 		
 		for (Map.Entry<String,SymbolTable> entry : Utils.symbolTables.entrySet()) {
 
-//			buffer += "\t=================== Vtable Creation ====================\n";
 			String class_name = entry.getKey();
 			SymbolTable table = entry.getValue();
 			
@@ -309,7 +310,7 @@ public class LoweringVisitor extends GJDepthFirst<DataBlock, DataBlock>{
        
     	// If local or method argument ~> Just MOVE
     	if (Utils.symbolTables.get(current_class).info.localCheck(current_method, var_name) != null || Utils.symbolTables.get(current_class).info.argCheck(current_method, var_name) != null){
-			buffer += "\tMOVE " + var_temp + " " + value + "\n";
+    		buffer += "\tMOVE " + var_temp + " " + value + "\n";
     	}
 		// If field ~> STORE
 		else {
@@ -666,6 +667,9 @@ public class LoweringVisitor extends GJDepthFirst<DataBlock, DataBlock>{
      */
     public DataBlock visit(MessageSend n, DataBlock argu) {
     	
+    	index ++;
+    	call_temps2.add(index, new ArrayList<String>());
+    	
     	DataBlock answer_db;
     	
     	String res_temp = Utils.getTemp();
@@ -680,7 +684,9 @@ public class LoweringVisitor extends GJDepthFirst<DataBlock, DataBlock>{
     	answer_db = n.f2.accept(this, db);
     	String method_name = answer_db.name;
     	String method_offset = Utils.symbolTables.get(class_name).info.getOffsetMethod(method_name);
+    	String method_type = Utils.symbolTables.get(class_name).info.getMethodType(method_name);
     	
+
     	buffer += "\tHLOAD " + v_temp + " " + object_temp + " 0\n";
     	buffer += "\tHLOAD " + m_temp + " " + v_temp + " " + method_offset + "\n";
     	
@@ -689,17 +695,18 @@ public class LoweringVisitor extends GJDepthFirst<DataBlock, DataBlock>{
     	buffer += "\tMOVE " + res_temp + " CALL " + m_temp + "( " + object_temp + " ";
     	
     	// Build method call argument temps
-    	for (int i = 0; i < call_temps.size(); i ++)
-    		buffer += call_temps.get(i) + " ";
+		for (int i = 0; i < call_temps2.get(index).size(); i ++)
+    		buffer += call_temps2.get(index).get(i) + " ";
     	
     	buffer += ")\n";
     	
     	// Clear for the next method call
-    	call_temps.clear();
+    	call_temps2.remove(index);
+    	index --;
     	
     	answer_db = new DataBlock();
     	answer_db.temp = res_temp;
-    	answer_db.belongs_to = current_class;
+    	answer_db.belongs_to = method_type;
     	
     	return answer_db;
     }
@@ -711,7 +718,8 @@ public class LoweringVisitor extends GJDepthFirst<DataBlock, DataBlock>{
     public DataBlock visit(ExpressionList n, DataBlock argu) {
     	
     	DataBlock answer_db =  n.f0.accept(this, argu);
-    	call_temps.add(answer_db.temp);
+    	call_temps2.get(index).add(answer_db.temp);
+    	
     	n.f1.accept(this, argu);
     	return null;
     }
@@ -724,7 +732,7 @@ public class LoweringVisitor extends GJDepthFirst<DataBlock, DataBlock>{
     	
     	n.f0.accept(this, argu);
     	DataBlock answer_db =  n.f1.accept(this, argu);
-    	call_temps.add(answer_db.temp);
+    	call_temps2.get(index).add(answer_db.temp);
     	return null;
     }
     
@@ -948,7 +956,6 @@ public class LoweringVisitor extends GJDepthFirst<DataBlock, DataBlock>{
        buffer += "\tJUMP " + loop_start + "\n";
        buffer += loop_end + "\tNOOP\n";		// label for the end of the loop
 		   
-       
        DataBlock answer_db = new DataBlock();
        answer_db.temp = object_address;
        answer_db.belongs_to = class_name;

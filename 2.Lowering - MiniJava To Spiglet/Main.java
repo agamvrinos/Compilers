@@ -6,12 +6,11 @@ class Main {
 	public static void main (String [] args){
 		
 	    FileInputStream fis = null;
-//	    for (int i = 0; i < args.length; i ++){
+	    for (int i = 0; i < args.length; i ++){
 			try{
-//				String filename = args[i];
+				String filename = args[i];
 				
-//				fis = new FileInputStream("Inputs/JavaFiles/" + filename);
-				fis = new FileInputStream("/home/agg/Eclipse/GenerateIR/src/TestInput2.java");
+				fis = new FileInputStream("Inputs/JavaFiles/" + filename);
 				
 				MiniJavaParser parser = new MiniJavaParser(fis);
 				
@@ -24,8 +23,7 @@ class Main {
 				LoweringVisitor eval3 = new LoweringVisitor();			// Build Spiglet IR	
 				root.accept(eval3, null);
 				//===================================================
-				PrintWriter out = new PrintWriter("/home/agg/Desktop/github/Compilers/2.Lowering - MiniJava To Spiglet/SpigletTest/Test" +  ".spg");
-//				PrintWriter out = new PrintWriter("Results/" + filename.split("\\.")[0] + ".spg");
+				PrintWriter out = new PrintWriter("Results/" + filename.split("\\.")[0] + ".spg");
 				out.print(LoweringVisitor.buffer);
 				out.flush();
 				out.close();
@@ -42,5 +40,5 @@ class Main {
 					System.err.println(ex.getMessage());}
 			}
 		}
-//	}
+	}
 }
