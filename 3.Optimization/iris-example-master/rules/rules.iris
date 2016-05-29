@@ -17,4 +17,5 @@ liveIn(?m, ?i, ?x) :- liveOut(?m, ?i, ?x),
 liveOut(?m, ?i, ?x) :- next(?m, ?i, ?k),	// k: oles oi epomenes entoles
 					   liveIn(?m, ?k, ?x).	// To In olwn twn successor
 
-dead(?m, ?i, ?x) :- !liveIn(?m, ?i, ?x).
+dead(?m, ?i, ?x) :- varDef(?m, ?i, ?x),
+					!liveOut(?m, ?i, ?x).
