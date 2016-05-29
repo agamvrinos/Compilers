@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path=""/>
+	<classpathentry kind="lib" path="jtb132di.jar"/>
+	<classpathentry kind="lib" path="lib/iris-0.60.jar"/>
+	<classpathentry kind="lib" path="lib/iris-app-0.60.jar"/>
+	<classpathentry kind="lib" path="lib/iris-parser-0.60.jar"/>
+	<classpathentry kind="lib" path="lib/jgrapht-core-0.9.0.jar"/>
+	<classpathentry kind="lib" path="lib/jgrapht-core-0.9.1.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

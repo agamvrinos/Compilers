@@ -1,0 +1,20 @@
+cJumpInstruction(?m, ?i) :- next(?m, ?i, ?j),
+                            next(?m, ?i, ?k),
+                            ?i+1 = ?k,
+                            ?j != ?k.
+
+jumpInstruction(?m, ?i) :- next(?m, ?i, ?j),
+                           ?i+1 = ?k,
+                           ?j != ?k,
+                           !next(?m, ?i, ?k).
+
+// method, instruction, variable
+liveIn(?m, ?i, ?x) :- varUse(?m, ?i, ?x).
+
+liveIn(?m, ?i, ?x) :- liveOut(?m, ?i, ?x),
+					  !varDef(?m, ?i, ?x).
+
+liveOut(?m, ?i, ?x) :- next(?m, ?i, ?k),	// k: oles oi epomenes entoles
+					   liveIn(?m, ?k, ?x).	// To In olwn twn successor
+
+dead(?m, ?i, ?x) :- !liveIn(?m, ?i, ?x).
