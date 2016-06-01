@@ -40,40 +40,45 @@ SinglePred(?m, ?i) :- instruction(?m, ?i, ?j),
 // ======================================
 // CONSTANT PROPAGATION ANALYSIS
 // ======================================
-// an einai tis morfis x = c
-// ConstIn(?m, ?i, ?x, ?c) :- constMove(?m, ?i, ?x, ?c).
-//
-// ConstIn(?m, ?i, ?x, ?c) :- MultiplePred(?m, ?i),	// oles oi entoles pou exoun 2 prokatoxous
-// 						   next(?m, ?k, ?i),		// o k einai o proigoumenos 1
-// 						   next(?m, ?j, ?i),		// o j einai o proigoumenos 2
-// 						   ConstOut(?m, ?k, ?x, ?c) and	// apo tin k oi entoles pou anoikoun sto Out
-// 						   ConstOut(?m, ?j, ?x, ?c),	// apo tin j oi entoles pou anoikoun sto Out
-// 						   ?j != ?k.
-//
-// ConstIn(?m, ?i, ?x, ?c) :- SinglePred(?m, ?i),	// oles oi entoles pou exoun 1 prokatoxo
-// 						   next(?m, ?k, ?i),	// o k einai o proigoumenos 1
-// 						   ConstOut(?m, ?k, ?x, ?c).	// prosthese to out tou k
-//
-// ConstOut(?m, ?i, ?x, ?c) :- ConstIn(?m, ?i, ?x, ?c),
-// 							InPlusDef(?m, ?i).
-//
-// ConstOut(?m, ?i, ?x, ?c) :-	varUse(?m, ?i, ?x2),
-// 							ConstIn(?m, ?i, ?x2, ?c),
-// 							varDef(?m, ?i, ?x).
-//
-// InMinusDef(?m, ?i) :- instruction(?m, ?i2, ?j),		// fere ola ta instructions
-// 					  ConstIn(?m, ?i2, ?x, ?c),		// krata oles tis metavlites apo auta pou einai sto IN
-// 					  varUse(?m, ?i, ?x),
-// 					  !varDef(?m, ?i, ?x).			// ektos apo autes pou anatithentai
-//
-// InPlusDef(?m, ?i) :-  instruction(?m, ?i2, ?j),
-// 					  ConstIn(?m, ?i2, ?x, ?c),
-// 					  varDef(?m, ?i, ?xx).
+ConstIn(?m, ?i, ?x, ?c) :- MultiplePred(?m, ?i),		// oles oi entoles pou exoun 2 prokatoxous
+						   next(?m, ?k, ?i),			// o k einai o proigoumenos 1
+						   next(?m, ?j, ?i),			// o j einai o proigoumenos 2
+						   ConstOut(?m, ?k, ?x, ?c) and	// apo tin k oi entoles pou anoikoun sto Out
+						   ConstOut(?m, ?j, ?x, ?c),	// apo tin j oi entoles pou anoikoun sto Out
+						   ?j != ?k.
 
+ConstIn(?m, ?i, ?x, ?c) :- SinglePred(?m, ?i),			// oles oi entoles pou exoun 1 prokatoxo
+						   next(?m, ?k, ?i),			// o k einai o proigoumenos 1
+						   ConstOut(?m, ?k, ?x, ?c).	// prosthese to out tou k
+
+ConstOut(?m, ?i, ?x, ?c) :- constMove(?m, ?i, ?x, ?c).
+
+ConstOut(?m, ?i, ?x, ?c) :-	varMove(?m, ?i, ?x, ?y),
+							ConstIn(?m, ?i, ?y, ?c).
+
+ConstOut(?m, ?i, ?x, ?c) :-	ConstIn(?m, ?i, ?x, ?c),
+							instruction(?m, ?i, ?dd),
+							!varDef(?m, ?i, ?x).
+
+
+constAnalysis(?m, ?i, ?x, ?c) :- varUse(?m, ?i, ?x),
+								ConstIn(?m, ?i, ?x, ?c).
+
+constAnalysis(?m, ?i, ?x, ?c) :- varDef(?m, ?i, ?x),
+								ConstOut(?m, ?i, ?x, ?c).
 // ======================================
 // COPY PROPAGATION ANALYSIS
 // ======================================
+CopyIn(?m, ?i, ?x, ?c) :- MultiplePred(?m, ?i),		// oles oi entoles pou exoun 2 prokatoxous
+						  next(?m, ?k, ?i),			// o k einai o proigoumenos 1
+						  next(?m, ?j, ?i),			// o j einai o proigoumenos 2
+						  CopyOut(?m, ?k, ?x, ?c) and	// apo tin k oi entoles pou anoikoun sto Out
+						  CopyOut(?m, ?j, ?x, ?c),	// apo tin j oi entoles pou anoikoun sto Out
+						  ?j != ?k.
 
+CopyIn(?m, ?i, ?x, ?c) :- SinglePred(?m, ?i),		// oles oi entoles pou exoun 1 prokatoxo
+						  next(?m, ?k, ?i),			// o k einai o proigoumenos 1
+						  CopyOut(?m, ?k, ?x, ?c).	// prosthese to out tou k
 // ======================================
 // BASIC BLOCKS
 // ======================================
