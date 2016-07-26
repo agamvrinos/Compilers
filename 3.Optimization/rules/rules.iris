@@ -1,0 +1,146 @@
+// ======================================
+// LIVE RANGE ANALYSIS
+// ======================================
+liveIn(?m, ?i, ?x) :- varUse(?m, ?i, ?x).
+
+liveIn(?m, ?i, ?x) :- liveOut(?m, ?i, ?x),
+					  !varDef(?m, ?i, ?x).
+
+liveOut(?m, ?i, ?x) :- next(?m, ?i, ?k),	// k: oles oi epomenes entoles
+					   liveIn(?m, ?k, ?x).	// To In olwn twn successor
+
+// ======================================
+// DEAD CODE ANALYSIS
+// ======================================
+dead(?m, ?i, ?x) :- varDef(?m, ?i, ?x),
+					!liveOut(?m, ?i, ?x).
+
+// ======================================
+// SUPPORT RULES
+// ======================================
+cJumpInstruction(?m, ?i) :- next(?m, ?i, ?j),
+                            next(?m, ?i, ?k),
+                            ?i+1 = ?k,
+                            ?j != ?k.
+
+jumpInstruction(?m, ?i) :- next(?m, ?i, ?j),
+                           ?i+1 = ?k,
+                           ?j != ?k,
+                           !next(?m, ?i, ?k).
+
+MultiplePred(?m, ?i) :- next(?m, ?k, ?i),
+						next(?m, ?j, ?i),
+						?j != ?k.
+
+SinglePred(?m, ?i) :- instruction(?m, ?i, ?j),
+					  !MultiplePred(?m, ?i).
+
+// ======================================
+// BASIC BLOCKS
+// ======================================
+// bb starts at start of method
+bb_start(?m, ?i) :- next(?m, ?i, ?j),
+					?i = 1.
+
+// bb starts after a jump/cjump
+bb_start(?m, ?j) :- jumpInstruction(?m, ?i),	// pare oles tis jump
+					instruction(?m, ?j, ?k),	// pare kai oles tis entoles
+					?i+1 = ?j.					// kai krata autin pou einai akrivws meta to jump
+
+bb_start(?m, ?j) :- cJumpInstruction(?m, ?i),	// pare oles tis cjump
+					instruction(?m, ?j, ?k),	// pare kai oles tis entoles
+					?i+1 = ?j.
+
+// bb starts before a label
+bb_start(?m, ?i) :- next(?m, ?j, ?i),
+                    ?j+1 = ?k,
+                    ?i != ?k.
+
+// bb ends AT a jump/cjump
+bb_end(?m, ?i) :- jumpInstruction(?m, ?i).
+
+bb_end(?m, ?i) :- cJumpInstruction(?m, ?i).
+
+// bb ends before a label
+bb_end(?m, ?ii) :- next(?m, ?j, ?i),
+				   ?j+1 = ?k,
+				   ?i != ?k,
+				   next(?m, ?ii, ?i).	// gurna to proigoumeno instruction tou label
+
+bb_end(?m, ?i) :- lastOrError(?m, ?i).
+
+lastOrError(?m, ?i) :- instruction(?m, ?i, ?k),
+					   !next(?m, ?i, ?j).
+
+basic_block(?m, ?s, ?e) :- bb_start(?m, ?s),
+						   getBbEnd(?m, ?s, ?e).
+
+getBbEnd(?m, ?s, ?e) :- next(?m, ?s, ?e),
+						bb_end(?m, ?e).
+
+getBbEnd(?m, ?s, ?e) :- next(?m, ?s, ?i),
+						!bb_end(?m, ?i),
+						getBbEnd(?m, ?i, ?e).
+
+// ======================================
+// COPY PROPAGATION ANALYSIS
+// ======================================
+CopyIn(?m, ?i, ?x, ?x2) :- MultiplePred(?m, ?i),		// oles oi entoles pou exoun 2 prokatoxous
+						  next(?m, ?k, ?i),				// o k einai o proigoumenos 1
+						  next(?m, ?j, ?i),				// o j einai o proigoumenos 2
+						  CopyOut(?m, ?k, ?x, ?x2) and	// apo tin k oi entoles pou anoikoun sto Out
+						  CopyOut(?m, ?j, ?x, ?x2),		// apo tin j oi entoles pou anoikoun sto Out
+						  ?j != ?k.
+
+CopyIn(?m, ?i, ?x, ?x2) :- SinglePred(?m, ?i),			// oles oi entoles pou exoun 1 prokatoxo
+						  next(?m, ?k, ?i),				// o k einai o proigoumenos 1
+						  CopyOut(?m, ?k, ?x, ?x2).		// prosthese to out tou k
+
+
+CopyOut(?m, ?i, ?x, ?x2) :- varMove(?m, ?i, ?x, ?x2).	// an einai tis morfis x = y, xwsto mesa
+
+// periptwsi pou ena temp pernei mia stathera kai meta ena allo temp
+// pernei tin idia stathera
+// p.x MOVE TEMP 99 5
+//     MOVE TEMP 100 5
+CopyOut(?m, ?i, ?x, ?x2) :- ConstIn(?m, ?i, ?x2, ?constval),
+							constMove(?m, ?i, ?x, ?constval),
+							?x != ?x2.
+
+CopyOut(?m, ?i, ?x, ?x2) :- CopyIn(?m, ?i, ?x, ?x2),
+							instruction(?m, ?i, ?dd),
+							varUse(?m, ?i, ?x).
+
+CopyOut(?m, ?j, ?x, ?x2) :- CopyIn(?m, ?j, ?x, ?x2),
+							instruction(?m, ?j, ?dd),
+							!varDef(?m, ?j, ?x2),
+							!varDef(?m, ?j, ?x).
+
+// ======================================
+// CONSTANT PROPAGATION ANALYSIS
+// ======================================
+ConstIn(?m, ?i, ?x, ?const) :- MultiplePred(?m, ?i),		// oles oi entoles pou exoun 2 prokatoxous
+						   next(?m, ?k, ?i),				// o k einai o proigoumenos 1
+						   next(?m, ?j, ?i),				// o j einai o proigoumenos 2
+						   ConstOut(?m, ?k, ?x, ?const) and	// apo tin k oi entoles pou anoikoun sto Out
+						   ConstOut(?m, ?j, ?x, ?const),	// apo tin j oi entoles pou anoikoun sto Out
+						   ?j != ?k.
+
+ConstIn(?m, ?i, ?x, ?const) :- SinglePred(?m, ?i),			// oles oi entoles pou exoun 1 prokatoxo
+						   next(?m, ?k, ?i),				// o k einai o proigoumenos 1
+						   ConstOut(?m, ?k, ?x, ?const).	// prosthese to out tou k
+
+ConstOut(?m, ?i, ?x, ?const) :- constMove(?m, ?i, ?x, ?const).
+
+ConstOut(?m, ?i, ?x, ?const) :-	varMove(?m, ?i, ?x, ?y),
+								ConstIn(?m, ?i, ?y, ?const).
+
+ConstOut(?m, ?i, ?x, ?const) :-	ConstIn(?m, ?i, ?x, ?const),
+								instruction(?m, ?i, ?dd),
+								!varDef(?m, ?i, ?x).
+
+constAnalysis(?m, ?i, ?x, ?const) :- varDef(?m, ?i, ?x),
+									ConstOut(?m, ?i, ?x, ?const).
+
+constAnalysis(?m, ?i, ?x, ?const) :- varUse(?m, ?i, ?x),
+									ConstIn(?m, ?i, ?x, ?const).
